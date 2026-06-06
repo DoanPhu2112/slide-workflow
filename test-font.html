@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Font Test</title>
+
+    <style>
+      body {
+        padding: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+        line-height: 1.5;
+        font-family: system-ui, sans-serif;
+      }
+
+      .test {
+        font-family: "GT Planar Trial", sans-serif;
+        margin-bottom: 32px;
+      }
+
+      .w100 {
+        font-weight: 100;
+      }
+      .w200 {
+        font-weight: 200;
+      }
+      .w300 {
+        font-weight: 300;
+      }
+      .w400 {
+        font-weight: 400;
+      }
+      .w500 {
+        font-weight: 500;
+      }
+      .w600 {
+        font-weight: 600;
+      }
+      .w700 {
+        font-weight: 700;
+      }
+      .w800 {
+        font-weight: 800;
+      }
+
+      .hero {
+        font-size: 72px;
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+      }
+
+      .title {
+        font-size: 48px;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+      }
+
+      .body {
+        font-size: 20px;
+        max-width: 800px;
+      }
+
+      .label {
+        font-family: monospace;
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>GT Planar Test</h1>
+
+    <div class="label">Hero / Weight 400</div>
+    <div class="test hero w400">Make videos programmatically.</div>
+
+    <div class="label">Hero / Weight 500</div>
+    <div class="test hero w500">Make videos programmatically.</div>
+
+    <div class="label">Hero / Weight 700</div>
+    <div class="test hero w700">Make videos programmatically.</div>
+
+    <hr />
+
+    <div class="label">Title / Weight 400</div>
+    <div class="test title w400">The next generation video toolkit.</div>
+
+    <div class="label">Title / Weight 500</div>
+    <div class="test title w500">The next generation video toolkit.</div>
+
+    <div class="label">Title / Weight 700</div>
+    <div class="test title w700">The next generation video toolkit.</div>
+
+    <hr />
+
+    <div class="label">Body Text</div>
+    <div class="test body w400">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua.
+    </div>
+
+    <div class="test body w500">
+      ABCDEFGHIJKLMNOPQRSTUVWXYZ<br />
+      abcdefghijklmnopqrstuvwxyz<br />
+      0123456789 !@#$%^&*()
+    </div>
+  </body>
+</html>
