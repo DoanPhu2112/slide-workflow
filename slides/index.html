@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slides Hub</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap");
+
+      :root {
+        --bg: #f4f7fb;
+        --surface: #ffffff;
+        --ink: #172033;
+        --muted: #667085;
+        --line: #d8e1ec;
+        --blue: #2563eb;
+        --shadow: 0 24px 48px rgba(15, 23, 42, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "GT Planar", "DM Sans", sans-serif;
+        background: linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+        color: var(--ink);
+      }
+
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 56px 24px 72px;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--blue);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(32px, 5vw, 54px);
+        line-height: 1.02;
+      }
+
+      .lead {
+        max-width: 720px;
+        margin: 18px 0 0;
+        font-size: 18px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .rule-box {
+        margin-top: 28px;
+        padding: 18px 20px;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.86);
+        box-shadow: var(--shadow);
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .projects {
+        display: grid;
+        gap: 16px;
+        margin-top: 28px;
+      }
+
+      .project-card {
+        display: block;
+        padding: 22px 24px;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        text-decoration: none;
+      }
+
+      .project-card:hover {
+        border-color: #bcd0f6;
+      }
+
+      .project-slug {
+        display: inline-block;
+        margin-bottom: 10px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--blue);
+      }
+
+      .project-title {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.15;
+        color: var(--ink);
+      }
+
+      .project-desc {
+        margin: 10px 0 0;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: 999px;
+        background: #eaf1ff;
+        color: var(--ink);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Slides Workspace</p>
+      <h1>Project decks phải nằm trong subfolder riêng</h1>
+      <p class="lead">
+        Không ghi đè trực tiếp vào <code>slides/index.html</code>. File này nên là
+        hub hoặc entry tổng, còn mỗi deck phải nằm ở dạng
+        <code>slides/&lt;project-slug&gt;/index.html</code> cùng CSS đi kèm.
+      </p>
+
+      <div class="rule-box">
+        Ví dụ đúng:
+        <code>slides/free-domain-guide/index.html</code>,
+        <code>slides/free-domain-guide/domain-guide.css</code><br />
+        Rule thêm:
+        luôn cập nhật hub <code>slides/index.html</code> khi có deck mới.
+      </div>
+
+      <section class="projects">
+        <a class="project-card" href="./free-domain-guide/index.html">
+          <span class="project-slug">free-domain-guide</span>
+          <h2 class="project-title">Đăng ký domain miễn phí</h2>
+          <p class="project-desc">
+            Deck hướng dẫn flow DigitalPlat + Cloudflare để cấp subdomain free,
+            chuyển DNS và trỏ web lên internet.
+          </p>
+        </a>
+
+        <a class="project-card" href="./http-response-types/index.html">
+          <span class="project-slug">http-response-types</span>
+          <h2 class="project-title">HTTP Response Types</h2>
+          <p class="project-desc">
+            Deck tổng hợp `2xx`, `3xx`, `4xx`, `5xx`, `52x` với flow ví dụ theo
+            phong cách Excalidraw cho từng status tiêu biểu.
+          </p>
+        </a>
+      </section>
+    </main>
+  </body>
+</html>

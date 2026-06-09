@@ -1,0 +1,13 @@
+title: Legacy Flow vs Digital Flow
+primitive: comparison
+takeaway: The digital path shortens delay and improves visibility.
+visual:
+  columns: [Legacy, Digital]
+  rows:
+    - label: Issuance
+      values: [Manual courier dispatch, Instant document issuance]
+    - label: Routing
+      values: [Email threads, Rules based routing]
+    - label: Visibility
+      values: [Limited event visibility, Shared audit timeline]
+

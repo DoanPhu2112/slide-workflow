@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
+
+:root {
+  --bg: #ffffff;
+  --text: #111111;
+  --muted: #555555;
+  --accent: #1f4b99;
+  --surface: #fafafa;
+  --line: #d9d9d9;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "GT Planar", "DM Sans", Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
+.slide { width: 100vw; min-height: 100vh; padding: 32px; }
+.heading { display: flex; justify-content: space-between; gap: 24px; margin-bottom: 24px; align-items: end; }
+.eyebrow { margin: 0 0 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; }
+h1 { margin: 0; font: 700 40px/1 "GT Planar", "DM Sans", Arial, Helvetica, sans-serif; }
+.summary { max-width: 280px; margin: 0; color: var(--muted); line-height: 1.6; }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.card { padding: 22px; border: 1px solid var(--line); background: var(--surface); border-radius: 20px; }
+.card h2 { margin: 0 0 16px; font-size: 28px; font-family: "GT Planar", "DM Sans", Arial, Helvetica, sans-serif; font-weight: 700; }
+.card ul { margin: 0; padding-left: 18px; display: grid; gap: 12px; color: var(--muted); }
+
+@media (max-width: 720px) {
+  .slide { width: 100%; min-height: auto; padding: 20px; }
+  .heading { flex-direction: column; align-items: start; gap: 12px; }
+  h1 { font-size: 30px; }
+  .summary { max-width: none; }
+  .cards { grid-template-columns: 1fr; }
+  .card h2 { font-size: 24px; }
+}

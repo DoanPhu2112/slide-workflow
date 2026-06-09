@@ -1,0 +1,1454 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HTTP Response Types</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css"
+    />
+    <link rel="stylesheet" href="./response-types.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-blue"></div>
+          <div class="deck-grid deck-grid--cover">
+            <div class="copy-stack">
+              <p class="eyebrow">HTTP status map</p>
+              <h1>Response type theo từng lớp xử lý</h1>
+              <p class="lead">
+                Deck này giữ phần list status ở slide riêng, còn từng example sẽ
+                được vẽ lại thành flow dùng asset từ Excalidraw Libraries.
+              </p>
+              <div class="legend-row">
+                <article class="legend-card">
+                  <span>2xx</span>
+                  <strong>Success</strong>
+                  <p>Request xử lý xong hoặc được chấp nhận.</p>
+                </article>
+                <article class="legend-card">
+                  <span>3xx</span>
+                  <strong>Redirect</strong>
+                  <p>Client phải đổi URL hoặc dùng cache.</p>
+                </article>
+                <article class="legend-card">
+                  <span>4xx</span>
+                  <strong>Client Error</strong>
+                  <p>Input, auth, quyền hoặc quota sai.</p>
+                </article>
+                <article class="legend-card">
+                  <span>5xx</span>
+                  <strong>Server Error</strong>
+                  <p>App, gateway, queue, DB hoặc upstream lỗi.</p>
+                </article>
+                <article class="legend-card">
+                  <span>52x</span>
+                  <strong>Cloudflare Edge</strong>
+                  <p>CDN chạm origin nhưng không nhận được phản hồi ổn.</p>
+                </article>
+              </div>
+            </div>
+
+            <div class="hero-panel">
+              <div class="hero-card">
+                <div class="card-tag">official library assets</div>
+                <div class="heuristic-list">
+                  <div>
+                    <strong>Stick</strong>
+                    <span>Dùng item `Stick man` từ `Stick Figures`</span>
+                  </div>
+                  <div>
+                    <strong>Server</strong>
+                    <span>Dùng item `Server` từ `Architecture diagram components`</span>
+                  </div>
+                  <div>
+                    <strong>Cloud</strong>
+                    <span>Dùng item `Cloud` cho flow `52x` qua Cloudflare</span>
+                  </div>
+                </div>
+              </div>
+              <div class="note-card">
+                <strong>Cách đọc deck</strong>
+                <p>
+                  Mỗi example flow luôn có source component thật, target
+                  component thật, và mũi tên gắn trực tiếp vào hai đầu tương tác.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-green"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-green-text">Success</p>
+              <h2>2xx: request xử lý thành công</h2>
+              <p class="summary">
+                Nhóm này không đồng nghĩa mọi thứ giống nhau. Có lúc server trả
+                data ngay, có lúc chỉ xác nhận đã nhận job.
+              </p>
+            </div>
+
+            <div class="status-grid status-grid--four">
+              <article class="status-card status-card--green">
+                <div class="status-chip">200</div>
+                <h3>OK</h3>
+                <p>Request thành công và trả dữ liệu ngay.</p>
+                <span>Dùng cho GET, PUT, PATCH phổ biến.</span>
+              </article>
+              <article class="status-card status-card--green">
+                <div class="status-chip">201</div>
+                <h3>Created</h3>
+                <p>Tạo mới resource thành công.</p>
+                <span>Nên kèm ID hoặc Location header.</span>
+              </article>
+              <article class="status-card status-card--green">
+                <div class="status-chip">202</div>
+                <h3>Accepted</h3>
+                <p>Server nhận request nhưng xử lý async.</p>
+                <span>Job vào queue, chưa có kết quả cuối.</span>
+              </article>
+              <article class="status-card status-card--green">
+                <div class="status-chip">204</div>
+                <h3>No Content</h3>
+                <p>Request thành công nhưng không cần body.</p>
+                <span>Hay dùng cho delete hoặc toggle state.</span>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-green"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-green-text">2xx examples A</p>
+              <h2>Flow cho 200 và 201</h2>
+            </div>
+
+            <div class="example-grid example-grid--two">
+              <article class="example-card flow-card flow-card--green">
+                <div class="flow-card-head">
+                  <span class="status-chip">200</span>
+                  <h3>GET profile</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Client</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /me</strong>
+                        <code>Authorization: Bearer ...</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>200 OK</strong>
+                        <code>{"name":"Lan","plan":"pro"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User thấy profile</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--green">
+                <div class="flow-card-head">
+                  <span class="status-chip">201</span>
+                  <h3>Create order</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Client</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>POST /orders</strong>
+                        <code>{"items":2,"sku":"SKU-7"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Order API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Order API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>201 Created</strong>
+                        <code>{"orderId":"ord_204"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Order mới</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-green"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-green-text">2xx examples B</p>
+              <h2>Flow cho 202 và 204</h2>
+            </div>
+
+            <div class="example-grid example-grid--two">
+              <article class="example-card flow-card flow-card--green">
+                <div class="flow-card-head">
+                  <span class="status-chip">202</span>
+                  <h3>Export async</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Analyst</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>POST /exports</strong>
+                        <code>{"report":"revenue"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Export API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Export API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>202 Accepted</strong>
+                        <code>{"jobId":"exp_87"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Đợi job queue</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--green">
+                <div class="flow-card-head">
+                  <span class="status-chip">204</span>
+                  <h3>Delete notification</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Client</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>DELETE /notifications/18</strong>
+                        <code>Body: none</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Notify API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Notify API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>204 No Content</strong>
+                        <code>empty body</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>UI cập nhật</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-violet"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-violet-text">Redirect</p>
+              <h2>3xx: client cần đổi đích hoặc dùng cache</h2>
+              <p class="summary">
+                Đây không hẳn là lỗi. Nó báo cho browser, bot hoặc SDK phải tiếp
+                tục sang URL khác hoặc tận dụng bản cache đang còn hiệu lực.
+              </p>
+            </div>
+
+            <div class="status-grid status-grid--four">
+              <article class="status-card status-card--violet">
+                <div class="status-chip">301</div>
+                <h3>Moved Permanently</h3>
+                <p>Resource đã chuyển hẳn sang URL mới.</p>
+                <span>SEO và bot nên cập nhật link canon.</span>
+              </article>
+              <article class="status-card status-card--violet">
+                <div class="status-chip">302</div>
+                <h3>Found</h3>
+                <p>Chuyển hướng tạm thời.</p>
+                <span>Hay dùng khi điều hướng ngắn hạn.</span>
+              </article>
+              <article class="status-card status-card--violet">
+                <div class="status-chip">304</div>
+                <h3>Not Modified</h3>
+                <p>Dữ liệu không đổi, client dùng cache cũ.</p>
+                <span>Giảm payload và băng thông.</span>
+              </article>
+              <article class="status-card status-card--violet">
+                <div class="status-chip">307</div>
+                <h3>Temporary Redirect</h3>
+                <p>Redirect tạm nhưng phải giữ nguyên method.</p>
+                <span>Quan trọng với POST hoặc PUT.</span>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-violet"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-violet-text">3xx examples A</p>
+              <h2>Flow cho 301 và 302</h2>
+            </div>
+
+            <div class="example-grid example-grid--two">
+              <article class="example-card flow-card flow-card--violet">
+                <div class="flow-card-head">
+                  <span class="status-chip">301</span>
+                  <h3>HTTP sang HTTPS</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Browser</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET http://shop.vn</strong>
+                        <code>URL cũ</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Web server</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Web server</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>301 Location</strong>
+                        <code>https://shop.vn</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Browser đổi URL</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--violet">
+                <div class="flow-card-head">
+                  <span class="status-chip">302</span>
+                  <h3>Campaign landing</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /summer-sale</strong>
+                        <code>campaign short URL</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Marketing site</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Marketing site</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>302 Found</strong>
+                        <code>/landing-q3</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Đi tạm sang page mới</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-violet"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-violet-text">3xx examples B</p>
+              <h2>Flow cho 304 và 307</h2>
+            </div>
+
+            <div class="example-grid example-grid--two">
+              <article class="example-card flow-card flow-card--violet">
+                <div class="flow-card-head">
+                  <span class="status-chip">304</span>
+                  <h3>Browser cache CSS</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Browser</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /app.css</strong>
+                        <code>If-None-Match: "css-v8"</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Static server</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Static server</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>304 Not Modified</strong>
+                        <code>dùng lại cache local</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Không tải lại CSS</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--violet">
+                <div class="flow-card-head">
+                  <span class="status-chip">307</span>
+                  <h3>Redirect upload</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Uploader</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>POST /upload</strong>
+                        <code>multipart/form-data</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Gateway</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Gateway</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>307 Temporary Redirect</strong>
+                        <code>/upload-node-b</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Giữ nguyên POST</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-amber"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-amber-text">Client error</p>
+              <h2>4xx: request đến nhưng không hợp lệ</h2>
+              <p class="summary">
+                Cùng là lỗi nhưng gốc khác nhau: sai cú pháp, thiếu xác thực,
+                không đủ quyền, đụng validation hoặc vượt quota.
+              </p>
+            </div>
+
+            <div class="status-grid status-grid--six">
+              <article class="status-card status-card--amber">
+                <div class="status-chip">400</div>
+                <h3>Bad Request</h3>
+                <p>JSON sai format hoặc thiếu field bắt buộc.</p>
+                <span>Request lỗi từ chính phía caller.</span>
+              </article>
+              <article class="status-card status-card--amber">
+                <div class="status-chip">401</div>
+                <h3>Unauthorized</h3>
+                <p>Thiếu token hoặc token đã hết hạn.</p>
+                <span>Chưa qua được lớp xác thực.</span>
+              </article>
+              <article class="status-card status-card--amber">
+                <div class="status-chip">403</div>
+                <h3>Forbidden</h3>
+                <p>Đăng nhập rồi nhưng không có quyền.</p>
+                <span>Auth đúng, permission sai.</span>
+              </article>
+              <article class="status-card status-card--amber">
+                <div class="status-chip">404</div>
+                <h3>Not Found</h3>
+                <p>Resource hoặc route không tồn tại.</p>
+                <span>Không tìm thấy đích yêu cầu.</span>
+              </article>
+              <article class="status-card status-card--amber">
+                <div class="status-chip">422</div>
+                <h3>Unprocessable</h3>
+                <p>Cú pháp đúng nhưng data fail validation.</p>
+                <span>Logic nghiệp vụ reject input.</span>
+              </article>
+              <article class="status-card status-card--amber">
+                <div class="status-chip">429</div>
+                <h3>Too Many Requests</h3>
+                <p>Caller đã vượt rate limit.</p>
+                <span>Server đang tự bảo vệ hệ thống.</span>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-amber"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-amber-text">4xx examples A</p>
+              <h2>Flow cho 400, 401, 403</h2>
+            </div>
+
+            <div class="example-grid example-grid--three">
+              <article class="example-card flow-card flow-card--amber">
+                <div class="flow-card-head">
+                  <span class="status-chip">400</span>
+                  <h3>Body thiếu email</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Client</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>POST /users</strong>
+                        <code>{"name":"Lan"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>User API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>User API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>400 Bad Request</strong>
+                        <code>{"error":"email is required"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Sửa JSON</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--amber">
+                <div class="flow-card-head">
+                  <span class="status-chip">401</span>
+                  <h3>Thiếu bearer token</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Client</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /me</strong>
+                        <code>Authorization: missing</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Auth API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Auth API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>401 Unauthorized</strong>
+                        <code>{"error":"missing bearer token"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Đăng nhập lại</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--amber">
+                <div class="flow-card-head">
+                  <span class="status-chip">403</span>
+                  <h3>User gọi route admin</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>DELETE /users/42</strong>
+                        <code>role: user</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Admin API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Admin API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>403 Forbidden</strong>
+                        <code>{"error":"admin only"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Thiếu quyền</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-amber"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-amber-text">4xx examples B</p>
+              <h2>Flow cho 404, 422, 429</h2>
+            </div>
+
+            <div class="example-grid example-grid--three">
+              <article class="example-card flow-card flow-card--amber">
+                <div class="flow-card-head">
+                  <span class="status-chip">404</span>
+                  <h3>Order không tồn tại</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Client</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /orders/99999</strong>
+                        <code>orderId không có</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Order API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Order API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>404 Not Found</strong>
+                        <code>{"error":"order not found"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Kiểm tra ID</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--amber">
+                <div class="flow-card-head">
+                  <span class="status-chip">422</span>
+                  <h3>Validation fail</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Client</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>POST /users</strong>
+                        <code>{"email":"lan@gmail.com"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>User API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>User API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>422 Unprocessable</strong>
+                        <code>{"error":"company domain required"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Đổi input</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--amber">
+                <div class="flow-card-head">
+                  <span class="status-chip">429</span>
+                  <h3>Spam OTP</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>POST /otp/resend</strong>
+                        <code>{"phone":"090..."}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>OTP API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>OTP API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>429 Too Many Requests</strong>
+                        <code>{"error":"rate limit exceeded"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Đợi cooldown</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-red"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-red-text">Server error</p>
+              <h2>5xx: request đúng nhưng backend hỏng</h2>
+              <p class="summary">
+                Đây là lúc nhìn vào application logs, reverse proxy, queue, DB,
+                hoặc timeout giữa các service.
+              </p>
+            </div>
+
+            <div class="status-grid status-grid--five">
+              <article class="status-card status-card--red">
+                <div class="status-chip">500</div>
+                <h3>Internal Error</h3>
+                <p>Unhandled exception hoặc bug code.</p>
+                <span>Lỗi phát sinh bên trong app.</span>
+              </article>
+              <article class="status-card status-card--red">
+                <div class="status-chip">501</div>
+                <h3>Not Implemented</h3>
+                <p>Server chưa hỗ trợ capability hoặc method đó.</p>
+                <span>Feature chưa có hoặc chưa bật.</span>
+              </article>
+              <article class="status-card status-card--red">
+                <div class="status-chip">502</div>
+                <h3>Bad Gateway</h3>
+                <p>Gateway nhận response upstream không hợp lệ.</p>
+                <span>Proxy chạm upstream lỗi.</span>
+              </article>
+              <article class="status-card status-card--red">
+                <div class="status-chip">503</div>
+                <h3>Unavailable</h3>
+                <p>Service tạm không phục vụ được.</p>
+                <span>Maintenance hoặc cạn tài nguyên.</span>
+              </article>
+              <article class="status-card status-card--red">
+                <div class="status-chip">504</div>
+                <h3>Gateway Timeout</h3>
+                <p>Upstream xử lý quá lâu nên gateway timeout.</p>
+                <span>Chain service bị nghẽn hoặc chậm.</span>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-red"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-red-text">5xx examples A</p>
+              <h2>Flow cho 500, 501, 502</h2>
+            </div>
+
+            <div class="example-grid example-grid--three">
+              <article class="example-card flow-card flow-card--red">
+                <div class="flow-card-head">
+                  <span class="status-chip">500</span>
+                  <h3>Null pointer</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /invoices/42</strong>
+                        <code>render invoice</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Billing API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Billing API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>500 Internal Error</strong>
+                        <code>{"error":"null pointer"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User bị fail</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--red">
+                <div class="flow-card-head">
+                  <span class="status-chip">501</span>
+                  <h3>PATCH chưa có</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Client</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>PATCH /profile</strong>
+                        <code>{"nickname":"Lan"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Profile API</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Profile API</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>501 Not Implemented</strong>
+                        <code>{"error":"PATCH not supported"}</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Feature chưa có</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--red">
+                <div class="flow-card-head">
+                  <span class="status-chip">502</span>
+                  <h3>Nginx gặp upstream lỗi</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /dashboard</strong>
+                        <code>qua Nginx gateway</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Nginx</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Nginx</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>502 Bad Gateway</strong>
+                        <code>upstream invalid response</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>App crash loop</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-red"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-red-text">5xx examples B</p>
+              <h2>Flow cho 503, 504</h2>
+            </div>
+
+            <div class="example-grid example-grid--two">
+              <article class="example-card flow-card flow-card--red">
+                <div class="flow-card-head">
+                  <span class="status-chip">503</span>
+                  <h3>Maintenance mode</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /app</strong>
+                        <code>truy cập bình thường</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>App server</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>App server</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>503 Service Unavailable</strong>
+                        <code>maintenance mode</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Quay lại sau</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--red">
+                <div class="flow-card-head">
+                  <span class="status-chip">504</span>
+                  <h3>Report quá lâu</h3>
+                </div>
+                <div class="flow-rail">
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /reports/monthly</strong>
+                        <code>query dữ liệu lớn</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Gateway</span>
+                    </div>
+                  </div>
+                  <div class="flow-row">
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Gateway</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>504 Gateway Timeout</strong>
+                        <code>upstream timeout</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>Request bị treo</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-cyan"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-cyan-text">Cloudflare edge</p>
+              <h2>52x: nhóm mã phát sinh ở lớp Cloudflare</h2>
+              <p class="summary">
+                Chúng giống 5xx ở chỗ request không đi trọn vẹn, nhưng khác ở
+                layer: Cloudflare nằm giữa client và origin server.
+              </p>
+            </div>
+
+            <div class="status-grid status-grid--four">
+              <article class="status-card status-card--cyan">
+                <div class="status-chip">520</div>
+                <h3>Unknown Error</h3>
+                <p>Origin trả response bất thường hoặc rỗng.</p>
+                <span>Cloudflare không parse được phản hồi.</span>
+              </article>
+              <article class="status-card status-card--cyan">
+                <div class="status-chip">521</div>
+                <h3>Web Server Down</h3>
+                <p>Origin từ chối kết nối từ Cloudflare.</p>
+                <span>Firewall hoặc app chưa mở cổng.</span>
+              </article>
+              <article class="status-card status-card--cyan">
+                <div class="status-chip">522</div>
+                <h3>Connection Timed Out</h3>
+                <p>Cloudflare không nhận phản hồi TCP kịp từ origin.</p>
+                <span>Origin chậm, treo hoặc bị chặn.</span>
+              </article>
+              <article class="status-card status-card--cyan">
+                <div class="status-chip">524</div>
+                <h3>A Timeout Occurred</h3>
+                <p>Kết nối lên được nhưng origin trả HTTP quá chậm.</p>
+                <span>Request dài hơn timeout edge cho phép.</span>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-cyan"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-cyan-text">52x examples A</p>
+              <h2>Flow cho 520 và 521</h2>
+            </div>
+
+            <div class="example-grid example-grid--two">
+              <article class="example-card flow-card flow-card--cyan">
+                <div class="flow-card-head">
+                  <span class="status-chip">520</span>
+                  <h3>Origin trả response rỗng</h3>
+                </div>
+                <div class="cloud-flow">
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /</strong>
+                        <code>qua Cloudflare</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                  </div>
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>Origin request</strong>
+                        <code>server trả rỗng</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Origin</span>
+                    </div>
+                  </div>
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>520 Unknown Error</strong>
+                        <code>empty / malformed response</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User thấy lỗi</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--cyan">
+                <div class="flow-card-head">
+                  <span class="status-chip">521</span>
+                  <h3>Origin từ chối kết nối</h3>
+                </div>
+                <div class="cloud-flow">
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /</strong>
+                        <code>request public</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                  </div>
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>TCP connect</strong>
+                        <code>firewall / server down</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Origin</span>
+                    </div>
+                  </div>
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>521 Web Server Down</strong>
+                        <code>connection refused</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User thấy fail</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+            </div>
+          </div>
+        </section>
+
+        <section class="status-slide" data-background-color="#f6f8fc">
+          <div class="top-rule accent-cyan"></div>
+          <div class="deck-grid">
+            <div class="section-copy">
+              <p class="eyebrow accent-cyan-text">52x examples B</p>
+              <h2>Flow cho 522 và 524</h2>
+            </div>
+
+            <div class="example-grid example-grid--two">
+              <article class="example-card flow-card flow-card--cyan flow-card--highlight">
+                <div class="flow-card-head">
+                  <span class="status-chip">522</span>
+                  <h3>Case Cloudflare timeout</h3>
+                </div>
+                <div class="cloud-flow">
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /</strong>
+                        <code>domain bật proxy</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                  </div>
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>Origin request</strong>
+                        <code>origin treo / firewall chặn</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Origin</span>
+                    </div>
+                  </div>
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>522 Connection Timed Out</strong>
+                        <code>không nhận phản hồi kịp</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User thấy timeout</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="example-card flow-card flow-card--cyan">
+                <div class="flow-card-head">
+                  <span class="status-chip">524</span>
+                  <h3>Origin xử lý quá chậm</h3>
+                </div>
+                <div class="cloud-flow">
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>GET /export</strong>
+                        <code>report nặng</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                  </div>
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                    <div class="flow-link">
+                      <div class="flow-note">
+                        <strong>HTTP request</strong>
+                        <code>origin xử lý quá lâu</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/server.svg" alt="" class="flow-icon flow-icon--server" />
+                      <span>Origin</span>
+                    </div>
+                  </div>
+                  <div class="flow-row flow-row--cloud">
+                    <div class="flow-node">
+                      <img src="./assets/cloud.svg" alt="" class="flow-icon flow-icon--cloud" />
+                      <span>Cloudflare</span>
+                    </div>
+                    <div class="flow-link flow-link--reverse">
+                      <div class="flow-note flow-note--status">
+                        <strong>524 A Timeout Occurred</strong>
+                        <code>connected but too slow</code>
+                      </div>
+                    </div>
+                    <div class="flow-node">
+                      <img src="./assets/stick-man.svg" alt="" class="flow-icon flow-icon--person" />
+                      <span>User đợi vô ích</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script>
+      Reveal.initialize({
+        hash: true,
+        controls: true,
+        progress: true,
+        center: false,
+        transition: "slide"
+      });
+    </script>
+  </body>
+</html>

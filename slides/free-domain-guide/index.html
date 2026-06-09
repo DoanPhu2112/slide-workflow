@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng ký Domain Miễn Phí</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css"
+    />
+    <link rel="stylesheet" href="./domain-guide.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section class="domain-slide cover-slide" data-background-color="#f4f7fb">
+          <div class="top-rule accent-cobalt"></div>
+          <div class="deck-grid deck-grid--cover">
+            <div class="cover-copy">
+              <p class="eyebrow">DigitalPlat + Cloudflare</p>
+              <h1>Đăng ký domain miễn phí để lab và đưa web lên internet</h1>
+              <p class="lead">
+                Deck này tóm tắt flow thực chiến từ bài hướng dẫn của DevOps
+                VietNam: tạo subdomain free, chuyển DNS sang Cloudflare, rồi trỏ
+                về server thật.
+              </p>
+              <div class="principle-row">
+                <article>
+                  <h3>Output chuẩn</h3>
+                  <p>Deck gốc tồn tại dưới dạng HTML/CSS trong folder <code>slides/</code>.</p>
+                </article>
+                <article>
+                  <h3>Mục tiêu</h3>
+                  <p>Tạo domain nhìn đủ chuyên nghiệp để test web, SSL và DNS flow.</p>
+                </article>
+                <article>
+                  <h3>Điều kiện tối thiểu</h3>
+                  <p>1 tài khoản Google và 1 nơi chạy website có IPv4 public.</p>
+                </article>
+              </div>
+            </div>
+            <div class="cover-panel">
+              <div class="hero-card">
+                <div class="card-tag">flow overview</div>
+                <div class="hero-steps">
+                  <div><strong>01</strong><span>Tạo account DigitalPlat</span></div>
+                  <div><strong>02</strong><span>Chọn subdomain và register</span></div>
+                  <div><strong>03</strong><span>Connect với Cloudflare</span></div>
+                  <div><strong>04</strong><span>Thêm DNS record và SSL</span></div>
+                </div>
+              </div>
+              <div class="source-note">
+                Nguồn: <code>devops.vn/posts/huong-dan-dang-ky-domain-mien-phi/</code><br />
+                Bài đăng 08/06/2026, cập nhật 09/06/2026.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="domain-slide" data-background-color="#f4f7fb">
+          <div class="top-rule accent-indigo"></div>
+          <div class="deck-grid deck-grid--overview">
+            <div class="section-copy">
+              <p class="eyebrow accent-indigo-text">Flow tổng quát</p>
+              <h2>4 bước phải đi đúng thứ tự</h2>
+              <p class="summary">
+                Nếu đi ngược thứ tự, bạn sẽ phải quay qua lại giữa dashboard free
+                domain và Cloudflare mà không rõ chỗ nào đang là nguồn cấu hình thật.
+              </p>
+            </div>
+            <div class="step-row">
+              <article class="step-card">
+                <span class="step-no">01</span>
+                <h3>Tạo account</h3>
+                <p>Create account trong DigitalPlat, rồi mới liên kết GitHub nếu cần.</p>
+                <span class="step-outcome">Output: có dashboard quản lý domain</span>
+              </article>
+              <article class="step-card">
+                <span class="step-no">02</span>
+                <h3>Register domain</h3>
+                <p>Nhập subdomain, chọn đuôi miền free, kiểm tra availability và lấy slot.</p>
+                <span class="step-outcome">Output: domain đã được cấp</span>
+              </article>
+              <article class="step-card">
+                <span class="step-no">03</span>
+                <h3>Chuyển DNS</h3>
+                <p>Add domain vào Cloudflare, copy nameserver và cập nhật ngược lại.</p>
+                <span class="step-outcome">Output: Cloudflare quản lý DNS</span>
+              </article>
+              <article class="step-card">
+                <span class="step-no">04</span>
+                <h3>Trỏ website</h3>
+                <p>Thêm A record về server/hosting, bật SSL mode đúng và chờ propagate.</p>
+                <span class="step-outcome">Output: web mở được từ internet</span>
+              </article>
+            </div>
+            <div class="hint-grid">
+              <div class="hint-box hint-box--mint">
+                <strong>Chuẩn bị</strong>
+                <p>Google account, Cloudflare account và 1 public IPv4 hoặc hosting free để test.</p>
+              </div>
+              <div class="hint-box hint-box--sand">
+                <strong>Điểm dễ nhầm</strong>
+                <p>Nameserver phải đổi xong trước khi record trong Cloudflare có ý nghĩa.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="domain-slide" data-background-color="#f4f7fb">
+          <div class="top-rule accent-sky"></div>
+          <div class="deck-grid deck-grid--two-column">
+            <div class="section-copy">
+              <p class="eyebrow accent-sky-text">Bước 1</p>
+              <h2>Tạo account DigitalPlat đúng cách</h2>
+              <p class="summary">
+                Bài gốc lưu ý không nên bấm login bằng Google hay GitHub ngay ở bước đầu.
+                Hãy tạo account thường, sau đó mới liên kết tài khoản trong dashboard.
+              </p>
+              <ol class="step-list">
+                <li>Truy cập <code>https://dash.domain.digitalplat.org/auth/login</code>.</li>
+                <li>Chọn <code>Create an account</code>.</li>
+                <li>Hoàn tất account thường để vào dashboard.</li>
+                <li>Nếu muốn, liên kết thêm GitHub sau khi đã đăng nhập.</li>
+              </ol>
+              <div class="callout callout--orange">
+                <strong>Lý do:</strong> tránh rối flow xác thực ngay từ đầu và giữ quyền chủ động ở dashboard domain.
+              </div>
+            </div>
+            <div class="visual-column">
+              <div class="metric-panel">
+                <div class="panel-label">điều kiện đầu vào</div>
+                <h3>Chỉ cần 1 Google account</h3>
+                <p>
+                  Phần quản lý DNS chuyên nghiệp sẽ được đẩy sang Cloudflare ở bước tiếp theo,
+                  nên DigitalPlat chỉ là điểm cấp phát domain free ban đầu.
+                </p>
+              </div>
+              <div class="code-card">
+                <div class="card-tag">step 1 focus</div>
+                <pre><code data-trim data-noescape>DigitalPlat login
+-> Create an account
+-> vào dashboard
+-> link GitHub nếu muốn</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="domain-slide" data-background-color="#f4f7fb">
+          <div class="top-rule accent-green"></div>
+          <div class="deck-grid deck-grid--two-column">
+            <div class="section-copy">
+              <p class="eyebrow accent-green-text">Bước 2</p>
+              <h2>Chọn subdomain và lấy free slot</h2>
+              <p class="summary">
+                Đây là bước xác định domain cuối cùng bạn sẽ mang qua Cloudflare.
+                Ví dụ trong bài là <code>devopsvietnamlab.dpdns.org</code>.
+              </p>
+              <ol class="step-list">
+                <li>Nhập subdomain mong muốn, ví dụ <code>devopsvietnamlab</code>.</li>
+                <li>Chọn một đuôi miền free, ví dụ <code>dpdns.org</code>.</li>
+                <li>Bấm <code>Check availability</code>.</li>
+                <li>Nếu còn trống, chọn <code>Use Free Slot</code> rồi <code>Register</code>.</li>
+              </ol>
+              <div class="callout callout--blue">
+                <strong>Lưu ý:</strong> phần nameserver có thể để xử lý ngay sau đó khi bạn đã có thông tin từ Cloudflare.
+              </div>
+            </div>
+            <div class="visual-column">
+              <div class="code-card code-card--light">
+                <div class="card-tag">domain example</div>
+                <pre><code data-trim data-noescape>subdomain: devopsvietnamlab
+suffix:    dpdns.org
+result:    devopsvietnamlab.dpdns.org</code></pre>
+              </div>
+              <div class="check-card">
+                <h3>Done khi nào?</h3>
+                <ul>
+                  <li>Domain đã xuất hiện trong dashboard.</li>
+                  <li>Slot type đang là free slot.</li>
+                  <li>Bạn có đúng full domain để đem qua bước Cloudflare.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="domain-slide" data-background-color="#f4f7fb">
+          <div class="top-rule accent-violet"></div>
+          <div class="deck-grid deck-grid--two-column">
+            <div class="section-copy">
+              <p class="eyebrow accent-violet-text">Bước 3</p>
+              <h2>Chuyển DNS sang Cloudflare</h2>
+              <p class="summary">
+                Từ bước này trở đi, Cloudflare mới là nơi bạn quản lý A, CNAME, TXT và SSL.
+              </p>
+              <ol class="step-list">
+                <li>Đăng nhập <code>https://dash.cloudflare.com/</code>.</li>
+                <li>Vào <code>Domains</code> → <code>Add domain</code> → <code>Connect a domain</code>.</li>
+                <li>Nhập full domain vừa đăng ký ở DigitalPlat.</li>
+                <li>Chọn plan <code>Free</code>.</li>
+                <li>Vào <code>DNS</code> → <code>Settings</code> để lấy 2 nameserver.</li>
+                <li>Quay lại DigitalPlat và cập nhật 2 nameserver đó cho domain.</li>
+              </ol>
+            </div>
+            <div class="visual-column">
+              <div class="code-card">
+                <div class="card-tag">handoff rule</div>
+                <pre><code data-trim data-noescape>DigitalPlat
+  cấp domain free
+
+Cloudflare
+  cấp nameserver
+  quản lý DNS records
+  quản lý SSL/TLS mode</code></pre>
+              </div>
+              <div class="metric-panel metric-panel--mint">
+                <div class="panel-label">checkpoint</div>
+                <h3>2 nameserver đã được cập nhật ngược lại</h3>
+                <p>
+                  Nếu bạn chưa làm xong bước này, mọi record bạn thêm trong Cloudflare
+                  vẫn chưa phải nguồn DNS có hiệu lực cho domain đó.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="domain-slide" data-background-color="#f4f7fb">
+          <div class="top-rule accent-orange"></div>
+          <div class="deck-grid deck-grid--two-column">
+            <div class="section-copy">
+              <p class="eyebrow accent-orange-text">Bước 4</p>
+              <h2>Trỏ website về server và cấu hình SSL/TLS</h2>
+              <p class="summary">
+                Sau khi nameserver đã chuyển xong, bạn mới thêm record để đẩy web lên internet thật.
+              </p>
+              <ol class="step-list">
+                <li>Vào <code>Cloudflare → DNS → Records</code>.</li>
+                <li>Thêm bản ghi <code>A</code> với <code>Name = @</code>.</li>
+                <li>Trỏ về <code>your_server_IP_address</code>.</li>
+                <li>Bật proxy nếu muốn đi qua edge của Cloudflare.</li>
+                <li>Nếu site dùng HTTPS, đặt <code>SSL/TLS mode</code> là <code>Full</code> hoặc <code>Full (strict)</code>.</li>
+              </ol>
+            </div>
+            <div class="visual-column">
+              <div class="code-card code-card--light">
+                <div class="card-tag">minimum record</div>
+                <pre><code data-trim data-noescape>Type:         A
+Name:         @
+IPv4 address: your_server_IP_address
+Proxy status: Enable</code></pre>
+              </div>
+              <div class="callout callout--danger">
+                <strong>Cảnh báo:</strong> SSL/TLS mode sai có thể gây redirect loop hoặc lỗi SSL dù DNS đã đúng.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="domain-slide outro-slide" data-background-color="#eef4ff">
+          <div class="top-rule accent-cobalt"></div>
+          <div class="deck-grid deck-grid--outro">
+            <div class="section-copy">
+              <p class="eyebrow">Checklist cuối</p>
+              <h2>Kiểm tra nhanh trước khi kết luận là xong</h2>
+              <div class="three-col-grid">
+                <article class="check-card check-card--soft">
+                  <h3>DigitalPlat</h3>
+                  <ul>
+                    <li>Domain đã register thành công.</li>
+                    <li>2 nameserver đã đổi sang Cloudflare.</li>
+                    <li>Không tiếp tục sửa record tại đây.</li>
+                  </ul>
+                </article>
+                <article class="check-card check-card--mint">
+                  <h3>Cloudflare</h3>
+                  <ul>
+                    <li>Domain đã được add vào dashboard.</li>
+                    <li>A record trỏ đúng đến IP đích.</li>
+                    <li>SSL/TLS mode phù hợp với server.</li>
+                  </ul>
+                </article>
+                <article class="check-card check-card--sand">
+                  <h3>Lỗi thường gặp</h3>
+                  <ul>
+                    <li>Subdomain đã bị dùng trước đó.</li>
+                    <li>Quên đổi nameserver.</li>
+                    <li>Trỏ sai IP hoặc sai SSL mode.</li>
+                  </ul>
+                </article>
+              </div>
+            </div>
+            <div class="outro-panel">
+              <div class="code-card">
+                <div class="card-tag">takeaway</div>
+                <pre><code data-trim data-noescape>DigitalPlat cấp domain
+Cloudflare quản lý DNS
+DNS record trỏ về server
+SSL/TLS phải đúng mode</code></pre>
+              </div>
+              <div class="source-note source-note--dense">
+                Nếu chưa có server để test nhanh, bài gốc còn gợi ý kết hợp hosting miễn phí
+                để xuất bản website mẫu rồi kiểm chứng lại toàn bộ flow DNS.
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script>
+      const deck = new Reveal({
+        hash: true,
+        progress: true,
+        controls: true,
+        center: false,
+        margin: 0.04,
+        transition: "slide",
+        backgroundTransition: "fade",
+      });
+      deck.initialize();
+    </script>
+  </body>
+</html>

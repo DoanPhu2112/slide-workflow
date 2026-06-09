@@ -1,0 +1,35 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
+
+:root {
+  --bg: #ffffff;
+  --text: #111111;
+  --muted: #555555;
+  --accent: #1f4b99;
+  --surface: #fafafa;
+  --line: #d9d9d9;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "GT Planar", "DM Sans", Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
+.slide { width: 100vw; min-height: 100vh; padding: 32px; }
+.heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 18px; }
+.eyebrow { margin: 0 0 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; }
+h1 { margin: 0; font: 700 40px/1 "GT Planar", "DM Sans", Arial, Helvetica, sans-serif; max-width: 420px; }
+.heading p { max-width: 270px; margin: 0; color: var(--muted); line-height: 1.6; }
+.chart-shell { padding: 18px 18px 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; }
+.chart { width: 100%; height: 320px; }
+.grid line { stroke: var(--line); stroke-width: 1; }
+.area { fill: #e9eef8; }
+.line { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.dots circle { fill: var(--bg); stroke: var(--accent); stroke-width: 2; }
+text { fill: var(--muted); font-size: 13px; font-family: "GT Planar", "DM Sans", Arial, Helvetica, sans-serif; }
+
+@media (max-width: 720px) {
+  .slide { width: 100%; min-height: auto; padding: 20px; }
+  .heading { flex-direction: column; align-items: start; gap: 12px; }
+  h1 { font-size: 30px; max-width: none; }
+  .heading p { max-width: none; }
+  .chart-shell { padding: 14px 12px 6px; }
+  .chart { height: 240px; }
+  text { font-size: 11px; }
+}

@@ -1,0 +1,38 @@
+title: How DNS Resolution Reaches the Final IP
+primitive: sequence
+takeaway: The recursive resolver performs the lookup chain, then returns one final IP to the user.
+visual:
+  actors: [User, Recursive DNS, Root DNS, TLD DNS, Authoritative DNS]
+  messages:
+    - from: User
+      to: Recursive DNS
+      label: Query example.com
+      note: initial query
+    - from: Recursive DNS
+      to: Root DNS
+      label: Where is .com?
+      note: lookup
+    - from: Root DNS
+      to: Recursive DNS
+      label: .com referral
+      note: referral
+    - from: Recursive DNS
+      to: TLD DNS
+      label: Where is example.com?
+      note: lookup
+    - from: TLD DNS
+      to: Recursive DNS
+      label: Authoritative referral
+      note: referral
+    - from: Recursive DNS
+      to: Authoritative DNS
+      label: Request A record
+      note: final lookup
+    - from: Authoritative DNS
+      to: Recursive DNS
+      label: 93.184.216.34
+      note: answer
+    - from: Recursive DNS
+      to: User
+      label: Return IP
+      note: cached if allowed

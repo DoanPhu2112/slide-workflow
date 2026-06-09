@@ -1,0 +1,7 @@
+title: Document Lifecycle from Issuance to Archive
+primitive: lifecycle
+takeaway: Ownership cycles, but the trusted record persists through every stage.
+visual:
+  steps: [Issue, Endorse, Transfer, Surrender, Archive]
+  center: Trusted Record
+

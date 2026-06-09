@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sequence Primitive</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="slide">
+      <p class="eyebrow">Sequence</p>
+      <div class="heading">
+        <h1>How DNS Resolution Reaches the Final IP</h1>
+        <p>
+          The `sequence` primitive should use a deterministic layout engine.
+          Mermaid owns participant spacing and message placement; the slide shell
+          only provides theme and framing.
+        </p>
+      </div>
+
+      <div class="diagram-shell">
+        <div class="diagram-meta">
+          <span>Renderer</span>
+          <strong>Mermaid sequenceDiagram</strong>
+        </div>
+        <div class="diagram-meta">
+          <span>Rule</span>
+          <strong>Message arrows anchor to real participants</strong>
+        </div>
+        <div id="mermaid-root" class="mermaid-root" aria-label="DNS sequence diagram"></div>
+      </div>
+    </section>
+
+    <script type="application/json" id="mermaid-config">
+      {
+        "startOnLoad": false,
+        "theme": "base",
+        "look": "classic",
+        "securityLevel": "loose",
+        "themeVariables": {
+          "fontFamily": "Inter, Arial, Helvetica, sans-serif",
+          "primaryColor": "#eef3f9",
+          "primaryTextColor": "#172033",
+          "primaryBorderColor": "#cfd9e8",
+          "lineColor": "#7b93b8",
+          "secondaryColor": "#ffffff",
+          "tertiaryColor": "#e8f7ed",
+          "background": "#ffffff",
+          "mainBkg": "#eef3f9",
+          "actorBkg": "#eef3f9",
+          "actorBorder": "#cfd9e8",
+          "actorTextColor": "#172033",
+          "signalColor": "#172033",
+          "signalTextColor": "#172033",
+          "labelBoxBkgColor": "#ffffff",
+          "labelBoxBorderColor": "#d8e0ec",
+          "labelTextColor": "#172033",
+          "noteBkgColor": "#ffffff",
+          "noteBorderColor": "#d8e0ec",
+          "noteTextColor": "#5f6e85"
+        },
+        "sequence": {
+          "showSequenceNumbers": true,
+          "mirrorActors": false,
+          "rightAngles": true,
+          "actorMargin": 90,
+          "diagramMarginX": 40,
+          "diagramMarginY": 24,
+          "messageMargin": 42,
+          "noteMargin": 14,
+          "width": 168,
+          "height": 56,
+          "messageAlign": "center",
+          "wrap": true,
+          "wrapPadding": 8,
+          "labelBoxWidth": 140,
+          "labelBoxHeight": 34
+        }
+      }
+    </script>
+
+    <script type="text/plain" id="mermaid-source">sequenceDiagram
+    actor User
+    participant Recursive as Recursive DNS
+    participant Root as Root DNS
+    participant TLD as TLD DNS
+    participant Auth as Authoritative DNS
+
+    User->>Recursive: Query example.com
+    Recursive->>Root: Ask for .com
+    Root-->>Recursive: .com referral
+    Recursive->>TLD: Ask for example.com
+    TLD-->>Recursive: Authoritative referral
+    Recursive->>Auth: Request A record
+    Auth-->>Recursive: 93.184.216.34
+    Recursive-->>User: Return IP</script>
+
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+      const config = JSON.parse(document.getElementById("mermaid-config").textContent);
+      const definition = document.getElementById("mermaid-source").textContent.trim();
+      const root = document.getElementById("mermaid-root");
+
+      mermaid.initialize(config);
+
+      const { svg, bindFunctions } = await mermaid.render("sequence-preview", definition);
+      root.innerHTML = svg;
+      bindFunctions?.(root);
+    </script>
+  </body>
+</html>

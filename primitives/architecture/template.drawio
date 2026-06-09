@@ -1,0 +1,70 @@
+<mxfile host="app.diagrams.net" modified="2026-06-08T00:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="aws-architecture" name="Page-1">
+    <mxGraphModel dx="1280" dy="720" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1280" pageHeight="720" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="aws" value="AWS Cloud" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;rounded=1;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="280" y="90" width="760" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="vpc" value="Application VPC" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;rounded=1;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="610" y="160" width="360" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="users" value="Users" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;rounded=1;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="120" y="170" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cloudfront" value="CloudFront" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;rounded=1;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="360" y="170" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="waf" value="WAF" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;rounded=1;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="550" y="170" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="apigw" value="API Gateway" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;rounded=1;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="730" y="170" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="lambda" value="Lambda" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;rounded=1;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="660" y="310" width="100" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="sqs" value="SQS" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;rounded=1;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="820" y="310" width="90" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ddb" value="DynamoDB" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;rounded=1;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="660" y="430" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="S3" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;rounded=1;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="820" y="430" width="90" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cw" value="CloudWatch" style="whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;rounded=1;arcSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="310" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="users" target="cloudfront">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="cloudfront" target="waf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="waf" target="apigw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="apigw" target="lambda">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="apigw" target="sqs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="lambda" target="ddb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="sqs" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="lambda" target="cw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#666666;" edge="1" parent="1" source="sqs" target="cw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

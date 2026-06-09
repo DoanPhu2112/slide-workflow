@@ -1,0 +1,17 @@
+title: Quarterly Operating Snapshot
+primitive: kpi
+takeaway: Throughput improved while delay and error rate both declined.
+visual:
+  metrics:
+    - label: Issued
+      value: 12.4k
+      delta: +28% QoQ
+    - label: Cycle Time
+      value: 4.2h
+      delta: -31% QoQ
+    - label: Error Rate
+      value: 1.6%
+      delta: -0.9 pts
+    - label: Partners Live
+      value: 37
+      delta: +9 this quarter

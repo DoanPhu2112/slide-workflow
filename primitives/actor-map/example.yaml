@@ -1,0 +1,7 @@
+title: Who Shapes the Shipment Workflow
+primitive: actor-map
+takeaway: Multiple actors influence trust, timing, and compliance around one core document.
+visual:
+  center: Digital Bill of Lading
+  actors: [Carrier, Exporter, Bank, Importer, Customs]
+

@@ -1,0 +1,33 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
+
+:root {
+  --bg: #ffffff;
+  --text: #111111;
+  --muted: #555555;
+  --accent: #1f4b99;
+  --line: #d9d9d9;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "GT Planar", "DM Sans", Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
+.slide { width: 100vw; min-height: 100vh; padding: 32px; display: grid; align-content: start; }
+.eyebrow { margin: 0; color: var(--accent); text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; }
+.heading { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin: 16px 0 32px; }
+.heading h1 { margin: 0; font: 700 40px/1 "GT Planar", "DM Sans", Arial, Helvetica, sans-serif; max-width: 420px; }
+.heading p { margin: 0; max-width: 260px; color: var(--muted); line-height: 1.6; }
+.timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; position: relative; margin-top: 8px; }
+.timeline::before { content: ""; position: absolute; top: 28px; left: 7%; right: 7%; height: 2px; background: var(--line); }
+.step { position: relative; z-index: 1; padding: 64px 16px 16px; border: 1px solid var(--line); background: var(--bg); }
+.step { border-radius: 18px; }
+.icon { width: 56px; height: 56px; display: grid; place-items: center; background: var(--bg); border: 1px solid var(--accent); color: var(--accent); font-weight: 700; position: absolute; top: 0; left: 16px; transform: translateY(-50%); border-radius: 16px; }
+.step h2 { margin: 0 0 10px; font-size: 20px; font-weight: 700; }
+.step p { margin: 0; color: var(--muted); line-height: 1.55; font-size: 14px; }
+
+@media (max-width: 720px) {
+  .slide { width: 100%; min-height: auto; padding: 20px; }
+  .heading { flex-direction: column; align-items: start; gap: 12px; margin-bottom: 24px; }
+  .heading h1 { font-size: 30px; max-width: none; }
+  .heading p { max-width: none; }
+  .timeline { grid-template-columns: 1fr; gap: 18px; }
+  .timeline::before { display: none; }
+}

@@ -1,0 +1,13 @@
+title: AWS-Style Document Exchange Platform
+primitive: architecture
+takeaway: The platform is easier to reason about when edge, app, queue, and data services sit in explicit AWS-style boundaries.
+visual:
+  layers:
+    - label: Edge
+      items: [Users, CloudFront, WAF]
+    - label: Ingress
+      items: [API Gateway]
+    - label: Compute
+      items: [Lambda, SQS]
+    - label: Data
+      items: [DynamoDB, S3, CloudWatch]

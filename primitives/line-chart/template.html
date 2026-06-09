@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Line Chart Primitive</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="slide">
+      <div class="heading">
+        <div>
+          <p class="eyebrow">Line Chart</p>
+          <h1>Adoption Accelerates After Partner Enablement</h1>
+        </div>
+        <p>Monthly active documents climb sharply once the third bank joins the network.</p>
+      </div>
+
+      <div class="chart-shell">
+        <svg viewBox="0 0 720 320" class="chart" aria-label="Adoption line chart">
+          <g class="grid">
+            <line x1="60" y1="260" x2="680" y2="260"></line>
+            <line x1="60" y1="200" x2="680" y2="200"></line>
+            <line x1="60" y1="140" x2="680" y2="140"></line>
+            <line x1="60" y1="80" x2="680" y2="80"></line>
+          </g>
+          <polyline class="area" points="60,260 150,238 240,214 330,180 420,130 510,92 600,66 680,48 680,260 60,260"></polyline>
+          <polyline class="line" points="60,260 150,238 240,214 330,180 420,130 510,92 600,66 680,48"></polyline>
+          <g class="dots">
+            <circle cx="60" cy="260" r="6"></circle>
+            <circle cx="150" cy="238" r="6"></circle>
+            <circle cx="240" cy="214" r="6"></circle>
+            <circle cx="330" cy="180" r="6"></circle>
+            <circle cx="420" cy="130" r="6"></circle>
+            <circle cx="510" cy="92" r="6"></circle>
+            <circle cx="600" cy="66" r="6"></circle>
+            <circle cx="680" cy="48" r="6"></circle>
+          </g>
+          <text x="60" y="292">Jan</text>
+          <text x="150" y="292">Feb</text>
+          <text x="240" y="292">Mar</text>
+          <text x="330" y="292">Apr</text>
+          <text x="420" y="292">May</text>
+          <text x="510" y="292">Jun</text>
+          <text x="600" y="292">Jul</text>
+          <text x="680" y="292">Aug</text>
+        </svg>
+      </div>
+    </section>
+  </body>
+</html>

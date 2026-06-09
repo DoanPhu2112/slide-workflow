@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Architecture Primitive</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="slide">
+      <div class="copy">
+        <p class="eyebrow">Architecture</p>
+        <h1>AWS-Style Document Exchange Platform</h1>
+        <p class="summary">
+          A plain reference diagram with service boundaries and connectors, shaped
+          for easy editing in draw.io.
+        </p>
+      </div>
+
+      <div class="diagram" aria-label="AWS-style architecture diagram">
+        <svg viewBox="0 0 900 500" aria-hidden="true">
+          <line x1="135" y1="140" x2="250" y2="140"></line>
+          <line x1="330" y1="140" x2="440" y2="140"></line>
+          <line x1="520" y1="140" x2="630" y2="140"></line>
+          <line x1="520" y1="140" x2="520" y2="260"></line>
+          <line x1="690" y1="140" x2="690" y2="260"></line>
+          <line x1="520" y1="300" x2="520" y2="390"></line>
+          <line x1="690" y1="300" x2="690" y2="390"></line>
+          <line x1="560" y1="430" x2="650" y2="430"></line>
+        </svg>
+
+        <div class="boundary aws">
+          <span class="boundary-label">AWS Cloud</span>
+        </div>
+
+        <div class="boundary vpc">
+          <span class="boundary-label">Application VPC</span>
+        </div>
+
+        <div class="node external internet">Users</div>
+        <div class="node service edge">CloudFront</div>
+        <div class="node service security">WAF</div>
+        <div class="node service ingress">API Gateway</div>
+        <div class="node service app">Lambda</div>
+        <div class="node service app secondary">SQS</div>
+        <div class="node service data">DynamoDB</div>
+        <div class="node service data secondary">S3</div>
+        <div class="node service observe">CloudWatch</div>
+      </div>
+    </section>
+  </body>
+</html>

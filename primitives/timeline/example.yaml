@@ -1,0 +1,14 @@
+title: Merchant Rollout in Four Moves
+primitive: timeline
+takeaway: Adoption improves when rollout is staged from scope to launch.
+visual:
+  steps:
+    - title: Scope
+      description: Define channels, regions, and success metrics.
+    - title: Enable
+      description: Wire APIs, sandbox partners, and data flows.
+    - title: Validate
+      description: Run test merchants and resolve edge cases.
+    - title: Launch
+      description: Turn on production traffic and monitor adoption.
+

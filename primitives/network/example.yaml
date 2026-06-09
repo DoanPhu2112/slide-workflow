@@ -1,0 +1,11 @@
+title: Partner Network Around the Core Platform
+primitive: network
+takeaway: The platform gains value from many connected external nodes, not one single integration.
+visual:
+  nodes: [Platform Hub, Carrier Cloud, Bank Gateway, Port Systems, Customs API]
+  edges:
+    - [Platform Hub, Carrier Cloud]
+    - [Platform Hub, Bank Gateway]
+    - [Platform Hub, Port Systems]
+    - [Platform Hub, Customs API]
+
