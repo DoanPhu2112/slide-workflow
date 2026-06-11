@@ -1,0 +1,1999 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SSL, Proxy Layers, DNS Foundations</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css"
+    />
+    <link rel="stylesheet" href="./deck.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-section-key="cover">
+          <div class="title-slide" data-persist-region="main" data-editable-region>
+            <h1>SSL, Proxy &amp; DNS</h1>
+          </div>
+        </section>
+
+        <section data-section-key="agenda" data-layout-key="agenda">
+          <div class="slide-page split-layout">
+            <div data-persist-region="main" data-editable-region>
+              <h2>Mục lục</h2>
+              <ol class="number-list">
+                <li>Các lớp bảo mật hệ thống ARP</li>
+                <li>Vấn đề trong phương án SSL hiện tại</li>
+                <li>Các phương án SSL</li>
+                <li>OSI model</li>
+                <li>Cách SSL hoạt động</li>
+                <li>Symmetric vs asymmetric key</li>
+                <li>API Gateway vs Reverse proxy vs load balancer</li>
+                <li>DNS Concept</li>
+              </ol>
+            </div>
+            <div class="media-column">
+              <div class="media-frame" data-resizable-media>
+                <div class="media-surface" data-persist-region="media">
+                  <img class="media-image" src="./assets/agenda-1781166897631.png" alt="" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <section data-section-key="title-security">
+            <div class="title-slide" data-persist-region="main" data-editable-region>
+              <h1>Các lớp bảo mật hệ thống ARP</h1>
+            </div>
+          </section>
+
+          <section data-section-key="security-layers" data-layout-key="security-layers">
+            <div class="slide-page split-layout">
+              <div data-persist-region="main" data-editable-region>
+                <h2>Luồng bảo vệ ARP</h2>
+                <ul class="plain-list">
+                  <li>Luồng đi từ Internet tới các application của hệ thống ARP qua nhiều lớp kiểm soát.</li>
+                  <li>Giao tiếp giữa các lớp dùng TLS, JWT và policy để giảm trust quá sớm.</li>
+                  <li>Bấm vào từng lớp để nhảy xuống slide mô tả chi tiết ngay bên dưới.</li>
+                </ul>
+              </div>
+              <div class="media-column">
+                <div class="media-frame" data-resizable-media>
+                  <div class="media-surface" data-persist-region="media">
+                    <div class="security-stack">
+                      <a class="security-stack__node security-stack__node--link" href="#/2/2">
+                        <strong>Internet</strong>
+                        <span>Nguồn truy cập công khai</span>
+                      </a>
+                      <div class="security-stack__arrow"></div>
+                      <a class="security-stack__node security-stack__node--link" href="#/2/3">
+                        <strong>F5</strong>
+                        <span>WAF · TLS · Load balancing</span>
+                      </a>
+                      <div class="security-stack__arrow"></div>
+                      <a class="security-stack__node security-stack__node--link" href="#/2/4">
+                        <strong>NGINX</strong>
+                        <span>Reverse proxy · allowlist F5 IP · hide header</span>
+                      </a>
+                      <div class="security-stack__arrow"></div>
+                      <a class="security-stack__node security-stack__node--link" href="#/2/5">
+                        <strong>Ingress / Istio</strong>
+                        <span>Routing · TLS · JWT authentication</span>
+                      </a>
+                      <div class="security-stack__arrow"></div>
+                      <a class="security-stack__node security-stack__node--link" href="#/2/6">
+                        <strong>Service Mesh</strong>
+                        <span>mTLS · logging · policy</span>
+                      </a>
+                      <div class="security-stack__arrow"></div>
+                      <a class="security-stack__node security-stack__node--link" href="#/2/7">
+                        <strong>Application</strong>
+                        <span>ARP FE / BE</span>
+                      </a>
+                      <div class="security-stack__arrow"></div>
+                      <a class="security-stack__node security-stack__node--link" href="#/2/8">
+                        <strong>Backend services</strong>
+                        <span>TLS · Basic Auth · HMAC · Vault · SSE-KMS · Encryption at Rest</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section data-section-key="security-internet-detail">
+            <div class="slide-page tool-detail-page" data-persist-region="main" data-editable-region>
+              <div class="tool-detail-layout">
+                <div class="tool-detail-copy">
+                  <a class="tool-detail-back" href="#/2/1">Quay lại overview</a>
+                  <div class="tool-logo-badge tool-logo-badge--neutral">Internet</div>
+                  <h2>Internet</h2>
+                  <ul class="plain-list plain-list--compact">
+                    <li>Use case: người dùng ngoài Internet gửi request vào ARP.</li>
+                    <li>Tại lớp này chưa có trust, nên mọi traffic đều phải đi qua F5 để được kiểm soát.</li>
+                  </ul>
+                </div>
+                <div class="tool-flow-card">
+                  <div class="tool-flow">
+                    <div class="tool-flow-node">Internet client</div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node tool-flow-node--tool">
+                      <strong>Untrusted traffic</strong>
+                      <span>public source</span>
+                    </div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node">F5</div>
+                  </div>
+                  <div class="tool-detail-facts">
+                    <div><strong>Nguồn request</strong><span>Browser, partner system, public client</span></div>
+                    <div><strong>Vai trò của lớp này</strong><span>Là nguồn request công khai đi vào hệ thống ARP.</span></div>
+                    <div><strong>Điểm nhận tiếp theo</strong><span>F5 ở lớp biên đầu tiên</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section data-section-key="security-f5-detail">
+            <div class="slide-page tool-detail-page" data-persist-region="main" data-editable-region>
+              <div class="tool-detail-layout">
+                <div class="tool-detail-copy">
+                  <a class="tool-detail-back" href="#/2/1">Quay lại overview</a>
+                  <div class="tool-logo-badge tool-logo-badge--f5">F5</div>
+                  <h2>F5</h2>
+                  <ul class="plain-list plain-list--compact">
+                    <li>Use case: chặn request xấu, terminate hoặc inspect TLS ở edge, rồi phân phối traffic vào cụm proxy bên trong.</li>
+                    <li>F5 là trust gate đầu tiên trước khi traffic vào lớp ứng dụng.</li>
+                  </ul>
+                </div>
+                <div class="tool-flow-card">
+                  <div class="tool-flow">
+                    <div class="tool-flow-node">Internet</div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node tool-flow-node--tool">
+                      <strong>F5</strong>
+                      <span>WAF · TLS · LB</span>
+                    </div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node">NGINX</div>
+                  </div>
+                  <div class="tool-pill-row">
+                    <span class="tool-pill">Block malicious traffic</span>
+                    <span class="tool-pill">Distribute to proxy nodes</span>
+                  </div>
+                  <div class="tool-detail-facts">
+                    <div><strong>Nguồn request</strong><span>Internet traffic</span></div>
+                    <div><strong>Vai trò của lớp này</strong><span>WAF, TLS handling, load balancing sang lớp NGINX</span></div>
+                    <div><strong>Điểm nhận tiếp theo</strong><span>NGINX reverse proxy</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section data-section-key="security-nginx-detail">
+            <div class="slide-page tool-detail-page" data-persist-region="main" data-editable-region>
+              <div class="tool-detail-layout">
+                <div class="tool-detail-copy">
+                  <a class="tool-detail-back" href="#/2/1">Quay lại overview</a>
+                  <div class="tool-logo-badge tool-logo-badge--nginx">N</div>
+                  <h2>NGINX</h2>
+                  <ul class="plain-list plain-list--compact">
+                    <li>Use case: nhận traffic chỉ từ F5, giảm lộ thông tin hạ tầng, forward tiếp tới lớp routing nội bộ.</li>
+                    <li>NGINX là lớp proxy trung gian giữa edge appliance và control plane của cluster.</li>
+                  </ul>
+                </div>
+                <div class="tool-flow-card">
+                  <div class="tool-flow">
+                    <div class="tool-flow-node">F5</div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node tool-flow-node--tool">
+                      <strong>NGINX</strong>
+                      <span>Allowlist · Hide header</span>
+                    </div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node">Ingress / Istio</div>
+                  </div>
+                  <div class="tool-pill-row">
+                    <span class="tool-pill">Only trust F5 IPs</span>
+                    <span class="tool-pill">Shield internal headers</span>
+                  </div>
+                  <div class="tool-detail-facts">
+                    <div><strong>Nguồn request</strong><span>F5 đã lọc và phân phối traffic</span></div>
+                    <div><strong>Vai trò của lớp này</strong><span>Reverse proxy, chỉ cho IP của F5 đi qua, ẩn header nội bộ</span></div>
+                    <div><strong>Điểm nhận tiếp theo</strong><span>Ingress / Istio</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section data-section-key="security-ingress-detail">
+            <div class="slide-page tool-detail-page" data-persist-region="main" data-editable-region>
+              <div class="tool-detail-layout">
+                <div class="tool-detail-copy">
+                  <a class="tool-detail-back" href="#/2/1">Quay lại overview</a>
+                  <div class="tool-logo-badge tool-logo-badge--istio">I</div>
+                  <h2>Ingress / Istio</h2>
+                  <ul class="plain-list plain-list--compact">
+                    <li>Use case: tách request sang đúng service và chỉ cho request có JWT hợp lệ đi tiếp.</li>
+                    <li>Đây là lớp control rõ nhất ở mức HTTP semantics trong cluster.</li>
+                  </ul>
+                </div>
+                <div class="tool-flow-card">
+                  <div class="tool-flow">
+                    <div class="tool-flow-node">NGINX</div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node tool-flow-node--tool">
+                      <strong>Ingress / Istio</strong>
+                      <span>Routing · TLS · JWT</span>
+                    </div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node">Service Mesh</div>
+                  </div>
+                  <div class="tool-pill-row">
+                    <span class="tool-pill">Route by host/path</span>
+                    <span class="tool-pill">Verify identity token</span>
+                  </div>
+                  <div class="tool-detail-facts">
+                    <div><strong>Nguồn request</strong><span>NGINX đã forward request hợp lệ</span></div>
+                    <div><strong>Vai trò của lớp này</strong><span>Route theo host/path, giữ TLS, xác thực JWT</span></div>
+                    <div><strong>Điểm nhận tiếp theo</strong><span>Service Mesh và workload phía sau</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section data-section-key="security-mesh-detail">
+            <div class="slide-page tool-detail-page" data-persist-region="main" data-editable-region>
+              <div class="tool-detail-layout">
+                <div class="tool-detail-copy">
+                  <a class="tool-detail-back" href="#/2/1">Quay lại overview</a>
+                  <div class="tool-logo-badge tool-logo-badge--mesh">Mesh</div>
+                  <h2>Service Mesh</h2>
+                  <ul class="plain-list plain-list--compact">
+                    <li>Use case: bảo vệ east-west traffic bên trong cluster mà không phụ thuộc code app.</li>
+                    <li>Mesh giúp chuẩn hóa policy và quan sát được giao tiếp giữa service với service.</li>
+                  </ul>
+                </div>
+                <div class="tool-flow-card">
+                  <div class="tool-flow">
+                    <div class="tool-flow-node">Ingress / Istio</div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node tool-flow-node--tool">
+                      <strong>Service Mesh</strong>
+                      <span>mTLS · Logging · Policy</span>
+                    </div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node">ARP FE / BE</div>
+                  </div>
+                  <div class="tool-pill-row">
+                    <span class="tool-pill">Encrypt service-to-service</span>
+                    <span class="tool-pill">Centralize policy</span>
+                  </div>
+                  <div class="tool-detail-facts">
+                    <div><strong>Nguồn request</strong><span>Ingress / Istio đã route xong</span></div>
+                    <div><strong>Vai trò của lớp này</strong><span>mTLS giữa service, logging, policy enforcement</span></div>
+                    <div><strong>Điểm nhận tiếp theo</strong><span>ARP FE / BE workloads</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section data-section-key="security-app-detail">
+            <div class="slide-page tool-detail-page" data-persist-region="main" data-editable-region>
+              <div class="tool-detail-layout">
+                <div class="tool-detail-copy">
+                  <a class="tool-detail-back" href="#/2/1">Quay lại overview</a>
+                  <div class="tool-logo-badge tool-logo-badge--app">ARP</div>
+                  <h2>Application</h2>
+                  <ul class="plain-list plain-list--compact">
+                    <li>Use case: tại đây request mới thực sự được xử lý theo logic nghiệp vụ của ARP.</li>
+                    <li>App không nên tự gánh mọi security concern của transport vì đã có các lớp trước đó hỗ trợ.</li>
+                  </ul>
+                </div>
+                <div class="tool-flow-card">
+                  <div class="tool-flow">
+                    <div class="tool-flow-node">Service Mesh</div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node tool-flow-node--tool">
+                      <strong>ARP FE / BE</strong>
+                      <span>Business logic</span>
+                    </div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node">Backend services</div>
+                  </div>
+                  <div class="tool-pill-row">
+                    <span class="tool-pill">Process request</span>
+                    <span class="tool-pill">Call protected downstream</span>
+                  </div>
+                  <div class="tool-detail-facts">
+                    <div><strong>Nguồn request</strong><span>Traffic đã qua mesh và policy</span></div>
+                    <div><strong>Vai trò của lớp này</strong><span>ARP FE / BE xử lý business logic và gọi downstream</span></div>
+                    <div><strong>Điểm nhận tiếp theo</strong><span>Backend services nội bộ và ngoài hệ thống</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section data-section-key="security-backend-detail">
+            <div class="slide-page tool-detail-page" data-persist-region="main" data-editable-region>
+              <div class="tool-detail-layout">
+                <div class="tool-detail-copy">
+                  <a class="tool-detail-back" href="#/2/1">Quay lại overview</a>
+                  <div class="tool-logo-badge tool-logo-badge--backend">B</div>
+                  <h2>Backend services</h2>
+                  <ul class="plain-list plain-list--compact">
+                    <li>Use case: bảo vệ dữ liệu khi truyền, khi xác thực, khi lưu secret và khi lưu xuống storage.</li>
+                    <li>Đây là lớp bảo vệ cuối cùng ở downstream, gần dữ liệu và tài nguyên nhất.</li>
+                  </ul>
+                </div>
+                <div class="tool-flow-card">
+                  <div class="tool-flow">
+                    <div class="tool-flow-node">ARP FE / BE</div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node tool-flow-node--tool">
+                      <strong>Backend controls</strong>
+                      <span>TLS · HMAC · Vault · KMS</span>
+                    </div>
+                    <div class="tool-flow-arrow"></div>
+                    <div class="tool-flow-node">Data / external service</div>
+                  </div>
+                  <div class="tool-pill-row">
+                    <span class="tool-pill">Protect secrets</span>
+                    <span class="tool-pill">Encrypt in transit and at rest</span>
+                  </div>
+                  <div class="tool-detail-facts">
+                    <div><strong>Nguồn request</strong><span>ARP FE / BE gọi xuống</span></div>
+                    <div><strong>Vai trò của lớp này</strong><span>Dùng TLS, Basic Auth, HMAC, Vault, SSE-KMS và encryption at rest</span></div>
+                    <div><strong>Điểm nhận tiếp theo</strong><span>Database, secret store, object storage, external dependency</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section data-section-key="title-current-ssl">
+          <div class="title-slide" data-persist-region="main" data-editable-region>
+            <h1>Vấn đề trong phương án SSL hiện tại</h1>
+          </div>
+        </section>
+
+        <section data-section-key="current-ssl" data-layout-key="current-ssl">
+          <div class="slide-page split-layout">
+            <div data-persist-region="main" data-editable-region>
+              <h2>Current SSL</h2>
+              <ul class="plain-list">
+                <li>Ưu điểm: inspect host, path, header và áp policy Layer 7</li>
+                <li>Ưu điểm: offload TLS cho backend</li>
+                <li>Đổi lại: nếu không re-encrypt, trust chuyển vào mạng nội bộ</li>
+                <li>Inspect chỉ xuất hiện sau khi payload được giải mã</li>
+              </ul>
+            </div>
+            <div class="media-column">
+              <div class="media-frame" data-resizable-media>
+                <div class="media-surface" data-persist-region="media">
+                  <img class="media-image" src="./assets/current-ssl-1781149150535.png" alt="" />
+                </div>
+              </div>
+              <p class="caption" data-persist-region="caption" data-editable-region>
+                Client → HTTPS → Edge proxy → HTTP hoặc re-encrypt → App
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section data-section-key="title-ssl-modes">
+          <div class="title-slide" data-persist-region="main" data-editable-region>
+            <h1>Các phương án SSL</h1>
+          </div>
+        </section>
+
+        <section data-section-key="ssl-passthrough" data-layout-key="ssl-passthrough">
+          <div class="slide-page split-layout">
+            <div data-persist-region="main" data-editable-region>
+              <h2>SSL passthrough</h2>
+              <ul class="plain-list">
+                <li>TLS đi <b>xuyên qua</b> proxy</li>
+                <li>Backend mới là nơi giải mã</li>
+                <li>Proxy nhẹ hơn</li>
+                <li>Không inspect được HTTP</li>
+              </ul>
+            </div>
+            <div class="media-column">
+              <div class="media-frame" data-resizable-media>
+                <div class="media-surface" data-persist-region="media">
+                  <img class="media-image" src="./assets/ssl-passthrough-1781167598829.png" alt="" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section data-section-key="ssl-bridge" data-layout-key="ssl-bridge">
+          <div class="slide-page split-layout">
+            <div data-persist-region="main" data-editable-region>
+              <h2>SSL bridge</h2>
+              <ul class="plain-list">
+                <li>Proxy giải mã để inspect</li>
+                <li>Proxy tạo TLS session mới tới backend</li>
+                <li>Có thể inspect trong quá trình xử lý trong Proxy</li>
+              </ul>
+            </div>
+            <div class="media-column">
+              <div class="media-frame" data-resizable-media>
+                <div class="media-surface" data-persist-region="media">
+                  <img class="media-image" src="./assets/ssl-bridge-1781167766634.png" alt="" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section data-section-key="ssl-terminate" data-layout-key="ssl-terminate">
+          <div class="slide-page split-layout">
+            <div data-persist-region="main" data-editable-region>
+              <h2>SSL terminate</h2>
+              <ul class="plain-list">
+                <li>Proxy giải mã ở edge</li>
+                <li>Edge route dựa trên HTTP request thật</li>
+                <li>L7 control mạnh nhất</li>
+                <li>Đơn giản hơn bridge</li>
+              </ul>
+            </div>
+            <div class="media-column">
+              <div class="media-frame" data-resizable-media>
+                <div class="media-surface" data-persist-region="media">
+                  <img class="media-image" src="./assets/ssl-terminate-1781148672557.png" alt="" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section data-section-key="ssl-tradeoffs" data-table-key="ssl-tradeoffs">
+          <div class="slide-page" data-persist-region="main" data-editable-region>
+            <h2>SSL Tradeoffs</h2>
+            <div class="table-wrap" data-table-wrap>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tiêu chí</th>
+                    <th>Passthrough</th>
+                    <th>Bridge</th>
+                    <th>Terminate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Request inspect</td>
+                    <td>&nbsp;Không</td>
+                    <td>Có</td>
+                    <td>Có</td>
+                  </tr>
+                  <tr>
+                    <td>SSL overhead ở proxy</td>
+                    <td>Thấp</td>
+                    <td>Cao nhất</td>
+                    <td>Trung bình</td>
+                  </tr>
+                  <tr>
+                    <td>SSL overhead ở backend</td>
+                    <td>Cao</td>
+                    <td>Cao</td>
+                    <td>Thấp hoặc không có</td>
+                  </tr>
+                  <tr>
+                    <td>Rủi ro plaintext nội bộ</td>
+                    <td>Thấp</td>
+                    <td>Thấp</td>
+                    <td>Cao hơn nếu không mã hóa lại</td>
+                  </tr>
+                  <tr>
+                    <td>WAF / auth / rate limit theo HTTP</td>
+                    <td>Khó</td>
+                    <td>Dễ</td>
+                    <td>Dễ</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="caption">Bridge và terminate inspect mạnh hơn. Passthrough và bridge giữ internal hop kín hơn.</p>
+          </div>
+        </section>
+
+        <section data-section-key="title-osi">
+          <div class="title-slide" data-persist-region="main" data-editable-region>
+            <h1>OSI model</h1>
+          </div>
+        </section>
+
+        <section data-section-key="osi-sequence-slide">
+          <div class="slide-page">
+            <div data-persist-region="main" data-editable-region>
+              <h2>OSI Layers</h2>
+            </div>
+            <div class="table-wrap table-wrap--wide" data-persist-region="layer-map" data-editable-region>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Layer</th>
+                    <th>Ánh xạ thực tế</th>
+                    <th>Inspect bằng gì</th>
+                    <th>Ví dụ nhìn thấy gì</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>L1 Physical</td>
+                    <td>Signal / wire / radio</td>
+                    <td>
+                      <div class="cell-stack">
+                        <div><code>ethtool</code></div>
+                        <div>NIC stats</div>
+                        <div>Link LEDs</div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-stack">
+                        <div>Link up/down</div>
+                        <div>Speed: <code>1Gbps</code></div>
+                        <div>Duplex: <code>full</code></div>
+                        <div>Signal level</div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>L2 Data Link</td>
+                    <td>Ethernet / MAC / frame</td>
+                    <td>
+                      <div class="cell-stack">
+                        <div><code>tcpdump -e</code></div>
+                        <div><code>ip link</code></div>
+                        <div><code>bridge vlan show</code></div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-stack">
+                        <div>MAC: <code>00:1a:2b:3c:4d:5e</code></div>
+                        <div>VLAN: <code>20</code></div>
+                        <div>EtherType: <code>0x0800</code></div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>L3 Network</td>
+                    <td>IP packet</td>
+                    <td>
+                      <div class="cell-stack">
+                        <div><code>ip route</code></div>
+                        <div><code>traceroute</code></div>
+                        <div><code>tcpdump -n</code></div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-stack">
+                        <div>Src IP: <code>10.10.10.10</code></div>
+                        <div>Dst IP: <code>172.16.1.25</code></div>
+                        <div>TTL: <code>64</code></div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>L4 Transport</td>
+                    <td>TCP / UDP</td>
+                    <td>
+                      <div class="cell-stack">
+                        <div><code>ss -tnp</code></div>
+                        <div><code>netstat -an</code></div>
+                        <div><code>tcpdump tcp port 443</code></div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-stack">
+                        <div>Src port: <code>51544</code></div>
+                        <div>Dst port: <code>443</code></div>
+                        <div>Seq: <code>12345</code></div>
+                        <div>State: <code>ESTABLISHED</code></div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>L5 Session</td>
+                    <td>Logical session</td>
+                    <td>
+                      <div class="cell-stack">
+                        <div><code>openssl s_client -reconnect</code></div>
+                        <div>Session logs</div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-stack">
+                        <div>TLS session reuse</div>
+                        <div>Session ID</div>
+                        <div>Keep-alive</div>
+                        <div>Reconnect context</div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>L6 Presentation</td>
+                    <td>TLS / encoding / format</td>
+                    <td>
+                      <div class="cell-stack">
+                        <div><code>openssl s_client</code></div>
+                        <div><code>tshark -d tcp.port==443,tls</code></div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-stack">
+                        <div>TLS: <code>1.3</code></div>
+                        <div>Cipher: <code>TLS_AES_128_GCM_SHA256</code></div>
+                        <div>Cert CN</div>
+                        <div>SNI: <code>api.example.com</code></div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>L7 Application</td>
+                    <td>HTTP / DNS / SMTP</td>
+                    <td>
+                      <div class="cell-stack">
+                        <div><code>curl -v</code></div>
+                        <div><code>ngrep</code></div>
+                        <div>App logs</div>
+                        <div>DevTools</div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cell-stack">
+                        <div><code>GET /orders</code></div>
+                        <div><code>Host: api.example.com</code></div>
+                        <div><code>Authorization: Bearer ...</code></div>
+                        <div><code>200 OK</code></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="diagram-shell">
+              <div id="osi-sequence" class="mermaid-root" data-diagram-id="osi-sequence"></div>
+            </div>
+            <div class="proxy-case-grid" data-persist-region="proxy-cases" data-editable-region>
+              <article class="proxy-case-card">
+                <h3>Passthrough</h3>
+                <div class="proxy-case-sequence">
+                  <div class="proxy-seq-node">Client TLS</div>
+                  <div class="proxy-seq-arrow"></div>
+                  <div class="proxy-shell">
+                    <div class="proxy-shell__title">Proxy</div>
+                    <div class="proxy-shell__steps">
+                      <div class="proxy-seq-node proxy-seq-node--proxy">Read SNI</div>
+                      <div class="proxy-seq-arrow proxy-seq-arrow--inner"></div>
+                      <div class="proxy-seq-node proxy-seq-node--proxy">No decrypt</div>
+                      <div class="proxy-seq-arrow proxy-seq-arrow--inner"></div>
+                      <div class="proxy-seq-node proxy-seq-node--proxy">Forward TLS</div>
+                    </div>
+                  </div>
+                  <div class="proxy-seq-arrow"></div>
+                  <div class="proxy-seq-node">Backend TLS</div>
+                </div>
+              </article>
+
+              <article class="proxy-case-card">
+                <h3>Bridge</h3>
+                <div class="proxy-case-sequence">
+                  <div class="proxy-seq-node">Client TLS</div>
+                  <div class="proxy-seq-arrow"></div>
+                  <div class="proxy-shell">
+                    <div class="proxy-shell__title">Proxy</div>
+                    <div class="proxy-shell__steps">
+                      <div class="proxy-seq-node proxy-seq-node--proxy">Terminate TLS</div>
+                      <div class="proxy-seq-arrow proxy-seq-arrow--inner"></div>
+                      <div class="proxy-seq-node proxy-seq-node--proxy">Inspect HTTP</div>
+                      <div class="proxy-seq-arrow proxy-seq-arrow--inner"></div>
+                      <div class="proxy-seq-node proxy-seq-node--proxy">Re-encrypt</div>
+                    </div>
+                  </div>
+                  <div class="proxy-seq-arrow"></div>
+                  <div class="proxy-seq-node">Backend TLS</div>
+                </div>
+              </article>
+
+              <article class="proxy-case-card">
+                <h3>Terminate</h3>
+                <div class="proxy-case-sequence">
+                  <div class="proxy-seq-node">Client TLS</div>
+                  <div class="proxy-seq-arrow"></div>
+                  <div class="proxy-shell">
+                    <div class="proxy-shell__title">Proxy</div>
+                    <div class="proxy-shell__steps">
+                      <div class="proxy-seq-node proxy-seq-node--proxy">Terminate TLS</div>
+                      <div class="proxy-seq-arrow proxy-seq-arrow--inner"></div>
+                      <div class="proxy-seq-node proxy-seq-node--proxy">Inspect HTTP</div>
+                      <div class="proxy-seq-arrow proxy-seq-arrow--inner"></div>
+                      <div class="proxy-seq-node proxy-seq-node--proxy">Forward HTTP</div>
+                    </div>
+                  </div>
+                  <div class="proxy-seq-arrow"></div>
+                  <div class="proxy-seq-node">Backend HTTP</div>
+                </div>
+              </article>
+            </div>
+            <ul class="plain-list plain-list--compact" data-persist-region="notes" data-editable-region>
+              <li>L2 và L3 chỉ lo chuyển gói tin, chưa hiểu ứng dụng</li>
+              <li>L4 thấy port và session transport, vẫn chưa thấy URL hay header</li>
+              <li>L7 chỉ lộ ra sau điểm giải mã TLS, nên reverse proxy mới inspect được HTTP</li>
+            </ul>
+          </div>
+        </section>
+
+        <section data-section-key="title-tls">
+          <div class="title-slide" data-persist-region="main" data-editable-region>
+            <h1>Cách SSL hoạt động</h1>
+          </div>
+        </section>
+
+        <section data-section-key="tls-sequence-slide">
+          <div class="slide-page tls-page">
+            <div data-persist-region="main" data-editable-region>
+              <h2>TLS Handshake</h2>
+              <div class="tls-summary-grid">
+                <article class="tls-card">
+                  <h3>Handshake dùng để làm gì</h3>
+                  <ol class="number-list tls-list">
+                    <li>Trao đổi message để hai bên ACK và mở đầu phiên.</li>
+                    <li>Xác thực server bằng certificate; có thể xác thực hai chiều nếu dùng mTLS.</li>
+                    <li>Đồng thuận version TLS, cipher suite và tham số crypto sẽ dùng.</li>
+                    <li>Sinh ra session key để bảo vệ application data phía sau.</li>
+                  </ol>
+                </article>
+                <article class="tls-card">
+                  <h3>Sau handshake có gì</h3>
+                  <ul class="plain-list tls-list">
+                    <li>Client biết đang nói chuyện với ai.</li>
+                    <li>Hai bên có chung session key nhưng không truyền plaintext key trên wire.</li>
+                    <li>HTTP data chỉ bắt đầu được mã hóa sau khi handshake hoàn tất.</li>
+                  </ul>
+                </article>
+              </div>
+            </div>
+            <div class="diagram-shell">
+              <div id="tls-sequence" class="mermaid-root" data-diagram-id="tls-sequence"></div>
+            </div>
+            <div class="caption" data-persist-region="caption" data-editable-region>
+              Handshake diễn ra trước. Chỉ sau khi có session key thì request và response HTTP mới đi dưới dạng encrypted application data.
+            </div>
+          </div>
+        </section>
+
+        <section data-section-key="tls-trust-slide" data-table-key="tls-root-stores">
+          <div class="slide-page tls-page">
+            <div data-persist-region="main" data-editable-region>
+              <h2>Certificate &amp; Trust</h2>
+            </div>
+            <div class="tls-detail-grid">
+              <article class="tls-card" data-persist-region="issuance" data-editable-region>
+                <h3>Proxy đăng ký certificate với CA</h3>
+                <ol class="number-list tls-list">
+                  <li>Tạo private key.</li>
+                  <li>Tạo CSR.</li>
+                  <li>Gửi CSR cho CA.</li>
+                  <li>CA xác minh domain hoặc tổ chức.</li>
+                  <li>CA cấp certificate.</li>
+                  <li>Cài certificate và private key lên F5, NGINX hoặc Ingress.</li>
+                </ol>
+              </article>
+              <article class="tls-card" data-persist-region="trust" data-editable-region>
+                <h3>Client tin certificate dựa vào đâu</h3>
+                <ul class="plain-list tls-list">
+                  <li>Browser, OS hoặc runtime sẽ có sẵn danh sách root CA đáng tin.</li>
+                  <li>Nếu certificate chain nối được về một root CA trong trust store thì certificate được chấp nhận.</li>
+                  <li>Private hoặc internal root CA chỉ được tin khi bạn chủ động import vào trust store.</li>
+                </ul>
+              </article>
+            </div>
+            <div class="table-wrap table-wrap--wide" data-table-wrap data-persist-region="store-map" data-editable-region>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nền tảng / trình duyệt</th>
+                    <th>Root CA trust store</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Windows / Edge / Chrome trên Windows</td>
+                    <td>Microsoft Trusted Root Program</td>
+                  </tr>
+                  <tr>
+                    <td>macOS / iOS / Safari</td>
+                    <td>Apple Trust Store</td>
+                  </tr>
+                  <tr>
+                    <td>Firefox</td>
+                    <td>Mozilla Root Store / NSS</td>
+                  </tr>
+                  <tr>
+                    <td>Chrome</td>
+                    <td>Chrome Root Store</td>
+                  </tr>
+                  <tr>
+                    <td>Java app</td>
+                    <td>Java <code>cacerts</code> truststore</td>
+                  </tr>
+                  <tr>
+                    <td>Linux</td>
+                    <td>CA bundle của distro, thường dựa nhiều vào Mozilla CA bundle</td>
+                  </tr>
+                  <tr>
+                    <td>Nội bộ doanh nghiệp</td>
+                    <td>Private / internal root CA</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tls-code-card" data-persist-region="example" data-editable-region>
+              <p class="caption">Ví dụ trên Fedora: <code>trust list</code></p>
+              <pre><code>pkcs11:id=%98%39%CD%BE%D8%B2%8C%F7%B2%AB%E1%AD%24%AF%7B%7C%A1%DB%1F%CF;type=cert
+    type: certificate
+    label: vTrus ECC Root CA
+    trust: anchor
+    category: authority
+
+pkcs11:id=%54%62%70%63%F1%75%84%43%58%8E%D1%16%20%B1%C6%AC%1A%BC%F6%89;type=cert
+    type: certificate
+    label: vTrus Root CA
+    trust: anchor
+    category: authority</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <section data-section-key="title-crypto">
+          <div class="title-slide" data-persist-region="main" data-editable-region>
+            <h1>Symmetric vs asymmetric key</h1>
+          </div>
+        </section>
+
+        <section data-section-key="crypto-table" data-table-key="crypto-table">
+          <div class="slide-page" data-persist-region="main" data-editable-region>
+            <h2>Symmetric và asymmetric</h2>
+            <div class="table-wrap table-wrap--medium" data-table-wrap>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tiêu chí</th>
+                    <th>Symmetric</th>
+                    <th>Asymmetric</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Speed</td>
+                    <td>Faster</td>
+                    <td>Slower</td>
+                  </tr>
+                  <tr>
+                    <td>Drawback</td>
+                    <td>Cần secure key sharing</td>
+                    <td>Không cần share cùng một secret</td>
+                  </tr>
+                  <tr>
+                    <td>Use case</td>
+                    <td>File encryption, large data</td>
+                    <td>SSL/TLS, small amount of trust material</td>
+                  </tr>
+                  <tr>
+                    <td>Algo</td>
+                    <td>AES</td>
+                    <td>RSA</td>
+                  </tr>
+                  <tr>
+                    <td>Key length</td>
+                    <td>128 or 256 bits</td>
+                    <td>2048 bits</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section data-section-key="title-gateway">
+          <div class="title-slide" data-persist-region="main" data-editable-region>
+            <h1>API Gateway vs Reverse proxy vs load balancer</h1>
+          </div>
+        </section>
+
+        <section data-section-key="gateway-visual">
+          <div class="slide-page">
+            <div data-persist-region="main" data-editable-region>
+              <h2>Traffic Roles</h2>
+            </div>
+            <div class="role-diagram-grid">
+              <article class="role-card">
+                <div class="role-card__head">
+                  <h3>API Gateway</h3>
+                  <p>Policy ở API edge</p>
+                </div>
+                <div class="role-flow">
+                  <div class="flow-actor" aria-hidden="true">
+                    <span class="flow-actor__head"></span>
+                    <span class="flow-actor__body"></span>
+                    <span class="flow-actor__arm flow-actor__arm--left"></span>
+                    <span class="flow-actor__arm flow-actor__arm--right"></span>
+                    <span class="flow-actor__leg flow-actor__leg--left"></span>
+                    <span class="flow-actor__leg flow-actor__leg--right"></span>
+                  </div>
+                  <div class="flow-line">
+                    <span class="flow-line__label">HTTPS API call</span>
+                  </div>
+                  <div class="flow-node flow-node--proxy">
+                    <strong>API Gateway</strong>
+                    <div class="flow-capability-row">
+                      <div class="flow-capability">
+                        <span class="flow-icon flow-icon--shield" aria-hidden="true"></span>
+                        <span>Auth</span>
+                      </div>
+                      <div class="flow-capability">
+                        <span class="flow-icon flow-icon--bars" aria-hidden="true"></span>
+                        <span>Quota</span>
+                      </div>
+                      <div class="flow-capability">
+                        <span class="flow-icon flow-icon--transform" aria-hidden="true"></span>
+                        <span>Transform</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flow-fanout">
+                    <span class="flow-fanout__label">route by API contract</span>
+                    <div class="flow-fanout__grid flow-fanout__grid--two">
+                      <div class="flow-fanout__item">
+                        <div class="flow-arrow-v"></div>
+                        <div class="flow-node flow-node--server">
+                          <strong>User API</strong>
+                        </div>
+                      </div>
+                      <div class="flow-fanout__item">
+                        <div class="flow-arrow-v"></div>
+                        <div class="flow-node flow-node--server">
+                          <strong>Order API</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="role-card">
+                <div class="role-card__head">
+                  <h3>Reverse Proxy</h3>
+                  <p>Shield và route tới origin</p>
+                </div>
+                <div class="role-flow">
+                  <div class="flow-actor" aria-hidden="true">
+                    <span class="flow-actor__head"></span>
+                    <span class="flow-actor__body"></span>
+                    <span class="flow-actor__arm flow-actor__arm--left"></span>
+                    <span class="flow-actor__arm flow-actor__arm--right"></span>
+                    <span class="flow-actor__leg flow-actor__leg--left"></span>
+                    <span class="flow-actor__leg flow-actor__leg--right"></span>
+                  </div>
+                  <div class="flow-line">
+                    <span class="flow-line__label">Web request</span>
+                  </div>
+                  <div class="flow-node flow-node--proxy">
+                    <strong>Reverse Proxy</strong>
+                    <div class="flow-capability-row">
+                      <div class="flow-capability">
+                        <span class="flow-icon flow-icon--lock" aria-hidden="true"></span>
+                        <span>TLS</span>
+                      </div>
+                      <div class="flow-capability">
+                        <span class="flow-icon flow-icon--route" aria-hidden="true"></span>
+                        <span>Routing</span>
+                      </div>
+                      <div class="flow-capability">
+                        <span class="flow-icon flow-icon--cache" aria-hidden="true"></span>
+                        <span>Cache</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flow-fanout">
+                    <span class="flow-fanout__label">forward to selected origin</span>
+                    <div class="flow-fanout__grid flow-fanout__grid--two">
+                      <div class="flow-fanout__item">
+                        <div class="flow-arrow-v"></div>
+                        <div class="flow-node flow-node--server">
+                          <strong>Web App</strong>
+                        </div>
+                      </div>
+                      <div class="flow-fanout__item">
+                        <div class="flow-arrow-v"></div>
+                        <div class="flow-node flow-node--server">
+                          <strong>Static Origin</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="role-card">
+                <div class="role-card__head">
+                  <h3>Load Balancer</h3>
+                  <p>Phân phối traffic sang pool</p>
+                </div>
+                <div class="role-flow">
+                  <div class="flow-actor" aria-hidden="true">
+                    <span class="flow-actor__head"></span>
+                    <span class="flow-actor__body"></span>
+                    <span class="flow-actor__arm flow-actor__arm--left"></span>
+                    <span class="flow-actor__arm flow-actor__arm--right"></span>
+                    <span class="flow-actor__leg flow-actor__leg--left"></span>
+                    <span class="flow-actor__leg flow-actor__leg--right"></span>
+                  </div>
+                  <div class="flow-line">
+                    <span class="flow-line__label">Incoming traffic</span>
+                  </div>
+                  <div class="flow-node flow-node--proxy">
+                    <strong>Load Balancer</strong>
+                    <div class="flow-capability-row">
+                      <div class="flow-capability">
+                        <span class="flow-icon flow-icon--pulse" aria-hidden="true"></span>
+                        <span>Health</span>
+                      </div>
+                      <div class="flow-capability">
+                        <span class="flow-icon flow-icon--distribute" aria-hidden="true"></span>
+                        <span>Distribute</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flow-fanout">
+                    <span class="flow-fanout__label">balance across instances</span>
+                    <div class="flow-fanout__grid flow-fanout__grid--three">
+                      <div class="flow-fanout__item">
+                        <div class="flow-arrow-v"></div>
+                        <div class="flow-node flow-node--server">
+                          <strong>Web 1</strong>
+                        </div>
+                      </div>
+                      <div class="flow-fanout__item">
+                        <div class="flow-arrow-v"></div>
+                        <div class="flow-node flow-node--server">
+                          <strong>Web 2</strong>
+                        </div>
+                      </div>
+                      <div class="flow-fanout__item">
+                        <div class="flow-arrow-v"></div>
+                        <div class="flow-node flow-node--server">
+                          <strong>Web 3</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <p class="caption">
+              Chúng hay bị nhầm vì nhiều sản phẩm có thể kiêm cả terminate TLS, routing và balancing. Điểm khác nhau là mục tiêu chính của node đứng giữa.
+            </p>
+          </div>
+        </section>
+
+        <section data-section-key="title-dns">
+          <div class="title-slide" data-persist-region="main" data-editable-region>
+            <h1>DNS Concept</h1>
+          </div>
+        </section>
+
+        <section data-section-key="dns-concepts" data-layout-key="dns-concepts">
+          <div class="slide-page split-layout">
+            <div data-persist-region="main" data-editable-region>
+              <h2>DNS Basics</h2>
+              <ul class="plain-list">
+                <li>User nhớ tên, network route theo IP</li>
+                <li>DNS map domain name sang địa chỉ</li>
+                <li>Namespace của DNS là một cây phân cấp</li>
+                <li>Mỗi node là một label, ghép lại thành FQDN</li>
+              </ul>
+            </div>
+            <div class="media-column">
+              <div class="media-frame" data-resizable-media>
+                <div class="media-surface" data-persist-region="media">
+                  <div class="image-placeholder">
+                    <span>Placeholder để bạn thêm hình domain namespace</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section data-section-key="dns-delegation" data-layout-key="dns-delegation">
+          <div class="slide-page split-layout">
+            <div data-persist-region="main" data-editable-region>
+              <h2>Delegation và các loại DNS server</h2>
+              <ul class="plain-list">
+                <li>Root server chỉ đường tới TLD</li>
+                <li>TLD server chỉ authority của zone tiếp theo</li>
+                <li>Authoritative server giữ record thật</li>
+                <li>`com` và `com.vn` đi theo nhánh authority khác nhau</li>
+              </ul>
+            </div>
+            <div class="media-column">
+              <div class="media-frame" data-resizable-media>
+                <div class="media-surface" data-persist-region="media">
+                  <div class="image-placeholder">
+                    <span>Placeholder để bạn thêm hình delegation và server types</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section data-section-key="dns-records" data-table-key="dns-records">
+          <div class="slide-page" data-persist-region="main" data-editable-region>
+            <h2>CNAME và TXT</h2>
+            <div class="table-wrap table-wrap--medium" data-table-wrap>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Record</th>
+                    <th>Dùng cho</th>
+                    <th>Ví dụ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>CNAME</td>
+                    <td>Alias từ hostname này sang hostname khác</td>
+                    <td>`www...` → `doanvuquangphu...`</td>
+                  </tr>
+                  <tr>
+                    <td>TXT</td>
+                    <td>Verify ownership hoặc policy metadata</td>
+                    <td>`_vercel... TXT "vc-domain-verify=..."`</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="caption">Case điển hình: CNAME để trỏ custom domain, TXT để xác minh cùng owner.</p>
+          </div>
+        </section>
+
+<section data-section-key="dns-in-action">
+          <div class="slide-page">
+            <div data-persist-region="main" data-editable-region>
+              <h2>DNS Resolution</h2>
+            </div>
+            <div class="diagram-shell">
+              <div id="dns-sequence" class="mermaid-root" data-diagram-id="dns-sequence"></div>
+            </div>
+            <p class="caption" data-persist-region="caption" data-editable-region">
+              DNS chỉ trả lời “đi đâu”, không tự giữ kết nối ứng dụng.
+            </p>
+          </div>
+        </section>
+        
+        <section data-section-key="title-terms">
+          <div class="title-slide" data-persist-region="main" data-editable-region>
+            <h1>Thuật ngữ</h1>
+          </div>
+        </section>
+
+        <section data-section-key="terms-edge">
+          <div class="slide-page glossary-page" data-persist-region="main" data-editable-region>
+            <h2>Edge Security Terms</h2>
+            <div class="glossary-grid">
+              <article class="glossary-card">
+                <h3>WAF</h3>
+                <p>Web Application Firewall.</p>
+                <p>Lọc request HTTP/HTTPS để chặn pattern tấn công như SQLi, XSS, path traversal.</p>
+                <p>Trong ARP: nằm ở F5 để chặn traffic xấu trước khi vào NGINX.</p>
+              </article>
+              <article class="glossary-card">
+                <h3>SNI</h3>
+                <p>Server Name Indication trong TLS handshake.</p>
+                <p>Cho client nói trước hostname muốn truy cập dù payload HTTP chưa được giải mã.</p>
+                <p>Trong passthrough: proxy chỉ có thể đọc SNI để route TLS stream.</p>
+              </article>
+              <article class="glossary-card">
+                <h3>JWT</h3>
+                <p>JSON Web Token.</p>
+                <p>Token mang claim định danh và quyền, thường được verify bằng signature.</p>
+                <p>Trong ARP: Ingress / Istio dùng JWT để chỉ cho request hợp lệ đi tiếp.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section data-section-key="terms-service">
+          <div class="slide-page glossary-page" data-persist-region="main" data-editable-region>
+            <h2>Service-to-Service Terms</h2>
+            <div class="glossary-grid">
+              <article class="glossary-card">
+                <h3>mTLS</h3>
+                <p>Mutual TLS.</p>
+                <p>Cả client và server đều xuất trình certificate để xác thực hai chiều.</p>
+                <p>Trong service mesh: bảo vệ east-west traffic giữa các service.</p>
+              </article>
+              <article class="glossary-card">
+                <h3>HMAC</h3>
+                <p>Hash-based Message Authentication Code.</p>
+                <p>Dùng shared secret để chứng minh message không bị sửa và đúng người gửi.</p>
+                <p>Trong backend integration: phù hợp cho callback, webhook, request signing.</p>
+              </article>
+              <article class="glossary-card">
+                <h3>Vault</h3>
+                <p>Secret management system.</p>
+                <p>Lưu và cấp phát secret, token, certificate theo policy thay vì hardcode trong app.</p>
+                <p>Trong ARP: dùng để giữ credential và rotate secret an toàn hơn.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section data-section-key="terms-data">
+          <div class="slide-page glossary-page" data-persist-region="main" data-editable-region>
+            <h2>Data Protection Terms</h2>
+            <div class="glossary-grid">
+              <article class="glossary-card">
+                <h3>SSE-KMS</h3>
+                <p>Server-Side Encryption with KMS-managed keys.</p>
+                <p>Dữ liệu được mã hóa ở storage side, còn key được quản lý bởi Key Management Service.</p>
+                <p>Phù hợp khi muốn kiểm soát quyền dùng key và audit key usage.</p>
+              </article>
+              <article class="glossary-card">
+                <h3>Encryption at Rest</h3>
+                <p>Mã hóa dữ liệu khi đang được lưu trữ.</p>
+                <p>Khác với TLS là bảo vệ khi truyền, khái niệm này bảo vệ disk, DB, object storage.</p>
+                <p>Trong ARP: áp dụng cho backend storage và dữ liệu nhạy cảm.</p>
+              </article>
+              <article class="glossary-card">
+                <h3>Basic Auth</h3>
+                <p>Cơ chế gửi username/password trong header Authorization.</p>
+                <p>Đơn giản nhưng phải đi kèm TLS vì credential chỉ được base64, không tự mã hóa.</p>
+                <p>Trong backend services: phù hợp cho một số hop nội bộ hoặc integration đơn giản.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <aside class="editor-panel editor-panel--collapsed" id="editor-panel">
+      <div class="editor-panel__head">
+        <div class="editor-panel__title">
+          <strong>Slide Editor</strong>
+          <span id="editor-active-key">No section</span>
+        </div>
+        <div class="editor-panel__head-actions">
+          <button type="button" id="editor-mode-toggle">Edit</button>
+          <button type="button" id="editor-toggle">Open</button>
+        </div>
+        <div class="editor-panel__collapsed-actions">
+          <button type="button" id="save-config-mini">Save</button>
+          <button type="button" id="editor-mode-toggle-mini">Edit</button>
+          <button type="button" id="editor-toggle-mini">Open</button>
+        </div>
+      </div>
+
+      <div class="editor-panel__body">
+        <div class="editor-group" id="editor-media-group">
+          <div class="editor-group__title">Image</div>
+          <div class="editor-panel__presets">
+            <button type="button" data-width-preset="33">1/3</button>
+            <button type="button" data-width-preset="40">2/5</button>
+            <button type="button" data-width-preset="50">1/2</button>
+            <button type="button" data-width-preset="100">1</button>
+          </div>
+          <div class="editor-panel__presets editor-panel__presets--two">
+            <button type="button" data-position-preset="right">Right</button>
+            <button type="button" data-position-preset="below">Below</button>
+          </div>
+          <label class="editor-field">
+            <span>Image width</span>
+            <input id="media-width" type="range" min="33" max="100" step="1" />
+            <output id="media-width-value">45%</output>
+          </label>
+          <label class="editor-field">
+            <span>Select image</span>
+            <input id="image-input" type="file" accept="image/*" />
+          </label>
+          <div class="editor-panel__actions">
+            <button type="button" id="image-reset">Reset width</button>
+            <button type="button" id="image-position-reset">Reset placement</button>
+            <button type="button" id="image-remove">Remove image</button>
+          </div>
+        </div>
+
+        <div class="editor-group" id="editor-table-group">
+          <div class="editor-group__title">Table</div>
+          <label class="editor-field">
+            <span>Table width</span>
+            <input id="table-width" type="range" min="58" max="100" step="1" />
+            <output id="table-width-value">76%</output>
+          </label>
+          <div class="editor-panel__actions">
+            <button type="button" id="table-reset">Reset table</button>
+          </div>
+        </div>
+
+        <div class="editor-panel__actions editor-panel__actions--full">
+          <button type="button" id="save-config">Save</button>
+          <button type="button" id="reload-config">Reload</button>
+        </div>
+
+        <textarea id="config-preview" class="editor-panel__export" spellcheck="false" readonly></textarea>
+        <p class="editor-panel__status" id="editor-status">Ready.</p>
+      </div>
+    </aside>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+      const STORAGE_KEY = "ssl-dns-foundations-editor-ui";
+
+      function resolveApiBase() {
+        const params = new URLSearchParams(window.location.search);
+        const explicitBase = params.get("apiBase");
+        if (explicitBase) {
+          return explicitBase.replace(/\/+$/, "");
+        }
+
+        if (window.location.protocol === "file:") {
+          return "http://127.0.0.1:4312";
+        }
+
+        return "";
+      }
+
+      const API_BASE = resolveApiBase();
+      const CONFIG_ENDPOINT = `${API_BASE}/api/config`;
+      const UPLOAD_ENDPOINT = `${API_BASE}/api/upload-image`;
+
+      const DEFAULT_LAYOUTS = {
+        cover: 45,
+        agenda: 100,
+        "security-layers": 50,
+        "current-ssl": 100,
+        "ssl-passthrough": 100,
+        "ssl-bridge": 100,
+        "ssl-terminate": 100,
+        "dns-concepts": 45,
+        "dns-delegation": 45
+      };
+
+      const DEFAULT_MEDIA_POSITIONS = {
+        agenda: "right",
+        "security-layers": "right",
+        "current-ssl": "below",
+        "ssl-passthrough": "below",
+        "ssl-bridge": "below",
+        "ssl-terminate": "below",
+        "dns-concepts": "right",
+        "dns-delegation": "right"
+      };
+
+      const DEFAULT_TABLE_WIDTHS = {
+        "ssl-tradeoffs": 82,
+        "crypto-table": 74,
+        "dns-records": 74,
+        "tls-root-stores": 96
+      };
+
+      const DEFAULT_DIAGRAMS = {
+        "osi-sequence": `sequenceDiagram
+actor Client
+participant Eth as L2 Ethernet
+participant IP as L3 IP
+participant TCP as L4 TCP
+participant TLS as L6 TLS
+participant HTTP as L7 HTTP
+participant Proxy as Reverse Proxy
+
+Client->>Eth: Build frame in local network
+Eth->>IP: Carry packet to next hop
+IP->>TCP: Route by source / destination IP
+TCP->>TLS: Open transport session on port 443
+TLS->>HTTP: Decrypt payload
+HTTP->>Proxy: Expose host, path, header, body
+Note over Eth,IP: L2-L3 chỉ thấy frame, MAC, IP, TTL, route info
+Note over TCP,TLS: L4-L6 thấy port, session, crypto metadata
+Note over HTTP,Proxy: Sau điểm giải mã mới inspect được request`,
+        "tls-sequence": `sequenceDiagram
+actor Client
+participant Server
+
+Client->>Server: ClientHello (TLS version, cipher list, SNI)
+Server-->>Client: ServerHello + selected cipher + Certificate
+Client->>Server: Verify cert chain + key exchange
+Client->>Server: Finished
+Server-->>Client: Finished
+Client->>Server: Encrypted HTTP request
+Server-->>Client: Encrypted HTTP response
+Note over Client,Server: Handshake để xác thực và sinh session key; data sau đó đi bằng symmetric crypto`,
+        "dns-sequence": `sequenceDiagram
+actor User
+participant OS as OS Stub Resolver
+participant Rec as Recursive Resolver
+participant Root as Root DNS
+participant TLD as TLD DNS
+participant Auth as Authoritative DNS
+
+User->>OS: Enter slides.example.com
+OS->>Rec: Query A/AAAA slides.example.com
+Rec->>Root: Where is .com?
+Root-->>Rec: Ask .com TLD
+Rec->>TLD: Where is example.com?
+TLD-->>Rec: Ask authoritative server
+Rec->>Auth: Resolve slides.example.com
+Auth-->>Rec: Final record or CNAME chain
+Rec-->>OS: Return IP and TTL for cache
+OS-->>User: Deliver resolved IP
+Note over User,OS: Client only starts TCP/TLS/HTTP after DNS returns destination`
+      };
+
+      const deck = new Reveal({
+        hash: true,
+        controls: false,
+        progress: false,
+        center: false,
+        width: 1600,
+        height: 900,
+        margin: 0.04,
+      });
+
+      await deck.initialize();
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        look: "classic",
+        securityLevel: "loose",
+        themeVariables: {
+          fontFamily: "Inter, Arial, Helvetica, sans-serif",
+          primaryColor: "#fafafa",
+          primaryTextColor: "#111827",
+          primaryBorderColor: "#e5e7eb",
+          lineColor: "#6b7280",
+          secondaryColor: "#ffffff",
+          tertiaryColor: "#f5f5f5",
+          background: "#ffffff",
+          mainBkg: "#fafafa",
+          actorBkg: "#fafafa",
+          actorBorder: "#e5e7eb",
+          actorTextColor: "#111827",
+          signalColor: "#111827",
+          signalTextColor: "#111827",
+          labelBoxBkgColor: "#ffffff",
+          labelBoxBorderColor: "#e5e7eb",
+          labelTextColor: "#111827",
+          noteBkgColor: "#ffffff",
+          noteBorderColor: "#e5e7eb",
+          noteTextColor: "#4b5563"
+        },
+        sequence: {
+          showSequenceNumbers: true,
+          mirrorActors: false,
+          rightAngles: true,
+          actorMargin: 80,
+          diagramMarginX: 24,
+          diagramMarginY: 16,
+          messageMargin: 34,
+          noteMargin: 14,
+          width: 158,
+          height: 54,
+          messageAlign: "center",
+          wrap: true,
+          wrapPadding: 8,
+          labelBoxWidth: 138,
+          labelBoxHeight: 32
+        }
+      });
+
+      const editorPanel = document.getElementById("editor-panel");
+      const editorToggle = document.getElementById("editor-toggle");
+      const editorToggleMini = document.getElementById("editor-toggle-mini");
+      const editorModeToggle = document.getElementById("editor-mode-toggle");
+      const editorModeToggleMini = document.getElementById("editor-mode-toggle-mini");
+      const editorActiveKey = document.getElementById("editor-active-key");
+      const editorStatus = document.getElementById("editor-status");
+      const configPreview = document.getElementById("config-preview");
+
+      const mediaGroup = document.getElementById("editor-media-group");
+      const mediaWidthInput = document.getElementById("media-width");
+      const mediaWidthValue = document.getElementById("media-width-value");
+      const imageInput = document.getElementById("image-input");
+      const imageReset = document.getElementById("image-reset");
+      const imagePositionReset = document.getElementById("image-position-reset");
+      const imageRemove = document.getElementById("image-remove");
+
+      const tableGroup = document.getElementById("editor-table-group");
+      const tableWidthInput = document.getElementById("table-width");
+      const tableWidthValue = document.getElementById("table-width-value");
+      const tableReset = document.getElementById("table-reset");
+
+      const saveButton = document.getElementById("save-config");
+      const saveButtonMini = document.getElementById("save-config-mini");
+      const reloadButton = document.getElementById("reload-config");
+
+      const state = {
+        activeSection: null,
+        editMode: false,
+        baseSnapshot: buildSnapshot(),
+        loadedConfig: { version: 1, sections: {}, diagrams: {} },
+        pendingUploads: {}
+      };
+
+      function buildSnapshot() {
+        const snapshot = { sections: {}, diagrams: { ...DEFAULT_DIAGRAMS } };
+
+        document.querySelectorAll("section[data-section-key]").forEach((section) => {
+          const key = section.dataset.sectionKey;
+          const sectionData = {
+            regions: {},
+            mediaWidth: null,
+            mediaPosition: null,
+            tableWidth: null
+          };
+
+          section.querySelectorAll("[data-persist-region]").forEach((region) => {
+            sectionData.regions[region.dataset.persistRegion] = region.innerHTML;
+          });
+
+          const media = section.querySelector("[data-resizable-media]");
+          if (media) {
+            const layoutKey = section.dataset.layoutKey;
+            sectionData.mediaWidth = DEFAULT_LAYOUTS[layoutKey] ?? 45;
+            sectionData.mediaPosition = DEFAULT_MEDIA_POSITIONS[layoutKey] ?? "right";
+          }
+
+          const tableWrap = section.querySelector("[data-table-wrap]");
+          if (tableWrap) {
+            const tableKey = section.dataset.tableKey;
+            sectionData.tableWidth = DEFAULT_TABLE_WIDTHS[tableKey] ?? 76;
+          }
+
+          snapshot.sections[key] = sectionData;
+        });
+
+        return snapshot;
+      }
+
+      function getSectionData(sectionKey) {
+        return state.loadedConfig.sections[sectionKey] || {};
+      }
+
+      function clone(value) {
+        return JSON.parse(JSON.stringify(value));
+      }
+
+      function setStatus(message, tone = "") {
+        editorStatus.textContent = message;
+        editorStatus.dataset.tone = tone;
+      }
+
+      function togglePanel() {
+        const collapsed = editorPanel.classList.toggle("editor-panel--collapsed");
+        editorToggle.textContent = collapsed ? "Open" : "Close";
+        editorToggleMini.textContent = collapsed ? "Open" : "Close";
+        localStorage.setItem(STORAGE_KEY, collapsed ? "closed" : "open");
+      }
+
+      editorToggle.addEventListener("click", togglePanel);
+      editorToggleMini.addEventListener("click", togglePanel);
+
+      function setEditMode(enabled) {
+        state.editMode = enabled;
+        document.body.classList.toggle("edit-mode", enabled);
+        editorModeToggle.textContent = enabled ? "Preview" : "Edit";
+        editorModeToggleMini.textContent = enabled ? "Preview" : "Edit";
+
+        document.querySelectorAll("[data-editable-region]").forEach((region) => {
+          region.contentEditable = enabled ? "true" : "false";
+          region.spellcheck = enabled;
+        });
+      }
+
+      editorModeToggle.addEventListener("click", () => {
+        setEditMode(!state.editMode);
+      });
+      editorModeToggleMini.addEventListener("click", () => {
+        setEditMode(!state.editMode);
+      });
+
+      async function renderDiagram(id, source) {
+        const root = document.querySelector(`[data-diagram-id="${id}"]`);
+        if (!root) return;
+        const { svg, bindFunctions } = await mermaid.render(`${id}-svg`, source);
+        root.innerHTML = svg;
+        bindFunctions?.(root);
+      }
+
+      async function renderAllDiagrams(diagrams) {
+        for (const [id, source] of Object.entries(diagrams)) {
+          await renderDiagram(id, source);
+        }
+      }
+
+      function applySectionConfig(section, sectionConfig) {
+        const baseSection = state.baseSnapshot.sections[section.dataset.sectionKey];
+        const merged = {
+          ...baseSection,
+          ...sectionConfig,
+          regions: {
+            ...baseSection.regions,
+            ...(sectionConfig.regions || {})
+          }
+        };
+
+        section.querySelectorAll("[data-persist-region]").forEach((region) => {
+          const regionKey = region.dataset.persistRegion;
+          const html = merged.regions[regionKey];
+          if (typeof html === "string") {
+            region.innerHTML = html;
+          }
+        });
+
+        const media = section.querySelector("[data-resizable-media]");
+        if (media && merged.mediaWidth) {
+          media.style.setProperty("--media-width", `${merged.mediaWidth}%`);
+        }
+
+        const splitLayout = section.querySelector(".split-layout");
+        if (splitLayout && media) {
+          splitLayout.dataset.mediaPosition = merged.mediaPosition || "right";
+        }
+
+        const tableWrap = section.querySelector("[data-table-wrap]");
+        if (tableWrap && merged.tableWidth) {
+          tableWrap.style.setProperty("--table-width", `${merged.tableWidth}%`);
+        }
+      }
+
+      async function applyConfig(config) {
+        state.loadedConfig = {
+          version: 1,
+          sections: {},
+          diagrams: {},
+          ...config
+        };
+
+        document.querySelectorAll("section[data-section-key]").forEach((section) => {
+          const key = section.dataset.sectionKey;
+          applySectionConfig(section, state.loadedConfig.sections[key] || {});
+        });
+
+        const diagrams = {
+          ...state.baseSnapshot.diagrams,
+          ...(state.loadedConfig.diagrams || {})
+        };
+        await renderAllDiagrams(diagrams);
+        updatePreviewJson();
+        refreshActiveSectionUI(deck.getCurrentSlide());
+      }
+
+      function serializeSections() {
+        const sections = {};
+
+        document.querySelectorAll("section[data-section-key]").forEach((section) => {
+          const key = section.dataset.sectionKey;
+          const sectionData = { regions: {} };
+
+          section.querySelectorAll("[data-persist-region]").forEach((region) => {
+            sectionData.regions[region.dataset.persistRegion] = region.innerHTML;
+          });
+
+          const media = section.querySelector("[data-resizable-media]");
+          if (media) {
+            const width = Number.parseInt(media.style.getPropertyValue("--media-width"), 10);
+            sectionData.mediaWidth = Number.isFinite(width)
+              ? width
+              : state.baseSnapshot.sections[key].mediaWidth;
+
+            const splitLayout = section.querySelector(".split-layout");
+            sectionData.mediaPosition =
+              splitLayout?.dataset.mediaPosition || state.baseSnapshot.sections[key].mediaPosition || "right";
+          }
+
+          const tableWrap = section.querySelector("[data-table-wrap]");
+          if (tableWrap) {
+            const width = Number.parseInt(tableWrap.style.getPropertyValue("--table-width"), 10);
+            sectionData.tableWidth = Number.isFinite(width)
+              ? width
+              : state.baseSnapshot.sections[key].tableWidth;
+          }
+
+          sections[key] = sectionData;
+        });
+
+        return sections;
+      }
+
+      function serializeCurrentConfig() {
+        return {
+          version: 1,
+          sections: serializeSections(),
+          diagrams: {
+            ...state.baseSnapshot.diagrams,
+            ...(state.loadedConfig.diagrams || {})
+          }
+        };
+      }
+
+      function updatePreviewJson() {
+        configPreview.value = JSON.stringify(serializeCurrentConfig(), null, 2);
+      }
+
+      function getActiveSectionMeta(section) {
+        return {
+          key: section?.dataset.sectionKey || "",
+          hasMedia: Boolean(section?.querySelector("[data-resizable-media]")),
+          hasTable: Boolean(section?.querySelector("[data-table-wrap]")),
+        };
+      }
+
+      function refreshActiveSectionUI(section) {
+        state.activeSection = section;
+        const meta = getActiveSectionMeta(section);
+        editorActiveKey.textContent = meta.key || "No section";
+        mediaGroup.hidden = !meta.hasMedia;
+        tableGroup.hidden = !meta.hasTable;
+
+        if (meta.hasMedia) {
+          const media = section.querySelector("[data-resizable-media]");
+          const width =
+            Number.parseInt(media.style.getPropertyValue("--media-width"), 10) ||
+            state.baseSnapshot.sections[meta.key].mediaWidth ||
+            45;
+          const splitLayout = section.querySelector(".split-layout");
+          const position =
+            splitLayout?.dataset.mediaPosition ||
+            state.baseSnapshot.sections[meta.key].mediaPosition ||
+            "right";
+          mediaWidthInput.value = String(width);
+          mediaWidthValue.value = `${width}%`;
+          document.querySelectorAll("[data-position-preset]").forEach((button) => {
+            button.classList.toggle("is-active", button.dataset.positionPreset === position);
+          });
+        }
+
+        if (meta.hasTable) {
+          const tableWrap = section.querySelector("[data-table-wrap]");
+          const width =
+            Number.parseInt(tableWrap.style.getPropertyValue("--table-width"), 10) ||
+            state.baseSnapshot.sections[meta.key].tableWidth ||
+            76;
+          tableWidthInput.value = String(width);
+          tableWidthValue.value = `${width}%`;
+        }
+
+        updatePreviewJson();
+      }
+
+      function setMediaWidth(nextWidth) {
+        const media = state.activeSection?.querySelector("[data-resizable-media]");
+        if (!media) return;
+        media.style.setProperty("--media-width", `${nextWidth}%`);
+        mediaWidthInput.value = String(nextWidth);
+        mediaWidthValue.value = `${nextWidth}%`;
+        updatePreviewJson();
+      }
+
+      function setMediaPosition(nextPosition) {
+        const splitLayout = state.activeSection?.querySelector(".split-layout");
+        const media = state.activeSection?.querySelector("[data-resizable-media]");
+        if (!splitLayout || !media) return;
+        splitLayout.dataset.mediaPosition = nextPosition;
+        document.querySelectorAll("[data-position-preset]").forEach((button) => {
+          button.classList.toggle("is-active", button.dataset.positionPreset === nextPosition);
+        });
+        updatePreviewJson();
+      }
+
+      function setTableWidth(nextWidth) {
+        const tableWrap = state.activeSection?.querySelector("[data-table-wrap]");
+        if (!tableWrap) return;
+        tableWrap.style.setProperty("--table-width", `${nextWidth}%`);
+        tableWidthInput.value = String(nextWidth);
+        tableWidthValue.value = `${nextWidth}%`;
+        updatePreviewJson();
+      }
+
+      mediaWidthInput.addEventListener("input", () => {
+        setMediaWidth(Number(mediaWidthInput.value));
+      });
+
+      tableWidthInput.addEventListener("input", () => {
+        setTableWidth(Number(tableWidthInput.value));
+      });
+
+      document.querySelectorAll("[data-width-preset]").forEach((button) => {
+        button.addEventListener("click", () => {
+          setMediaWidth(Number(button.dataset.widthPreset));
+        });
+      });
+
+      document.querySelectorAll("[data-position-preset]").forEach((button) => {
+        button.addEventListener("click", () => {
+          setMediaPosition(button.dataset.positionPreset);
+        });
+      });
+
+      imageReset.addEventListener("click", () => {
+        const section = state.activeSection;
+        if (!section?.dataset.sectionKey) return;
+        const key = section.dataset.sectionKey;
+        const defaultWidth = state.baseSnapshot.sections[key].mediaWidth ?? 45;
+        setMediaWidth(defaultWidth);
+      });
+
+      imagePositionReset.addEventListener("click", () => {
+        const section = state.activeSection;
+        if (!section?.dataset.sectionKey) return;
+        const key = section.dataset.sectionKey;
+        const defaultPosition = state.baseSnapshot.sections[key].mediaPosition ?? "right";
+        setMediaPosition(defaultPosition);
+      });
+
+      tableReset.addEventListener("click", () => {
+        const section = state.activeSection;
+        if (!section?.dataset.sectionKey) return;
+        const key = section.dataset.sectionKey;
+        const defaultWidth = state.baseSnapshot.sections[key].tableWidth ?? 76;
+        setTableWidth(defaultWidth);
+      });
+
+      imageRemove.addEventListener("click", () => {
+        const section = state.activeSection;
+        if (!section?.dataset.sectionKey) return;
+        const key = section.dataset.sectionKey;
+        const mediaRegion = section.querySelector('[data-persist-region="media"]');
+        if (!mediaRegion) return;
+        mediaRegion.innerHTML = state.baseSnapshot.sections[key].regions.media;
+        delete state.pendingUploads[key];
+        imageInput.value = "";
+        updatePreviewJson();
+      });
+
+      imageInput.addEventListener("change", async () => {
+        const section = state.activeSection;
+        if (!section?.dataset.sectionKey) return;
+        const file = imageInput.files?.[0];
+        if (!file) return;
+
+        const dataUrl = await fileToDataUrl(file);
+        const mediaRegion = section.querySelector('[data-persist-region="media"]');
+        if (!mediaRegion) return;
+
+        state.pendingUploads[section.dataset.sectionKey] = {
+          originalName: file.name,
+          dataUrl
+        };
+
+        mediaRegion.innerHTML = `<img class="media-image" src="${dataUrl}" alt="" />`;
+        setStatus(`Queued image for ${section.dataset.sectionKey}. Save để ghi vào repo.`, "info");
+        updatePreviewJson();
+      });
+
+      function fileToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function uploadPendingImages() {
+        const entries = Object.entries(state.pendingUploads);
+        if (!entries.length) return;
+
+        for (const [sectionKey, upload] of entries) {
+          const response = await fetch(UPLOAD_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sectionKey,
+              originalName: upload.originalName,
+              dataUrl: upload.dataUrl
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Upload failed for ${sectionKey}`);
+          }
+
+          const payload = await response.json();
+          const section = document.querySelector(`section[data-section-key="${sectionKey}"]`);
+          const mediaRegion = section?.querySelector('[data-persist-region="media"]');
+          if (mediaRegion) {
+            mediaRegion.innerHTML = `<img class="media-image" src="./${payload.path}" alt="" />`;
+          }
+        }
+
+        state.pendingUploads = {};
+      }
+
+      async function saveConfig() {
+        setStatus("Saving...", "info");
+        try {
+          await uploadPendingImages();
+          const payload = serializeCurrentConfig();
+          const response = await fetch(CONFIG_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload, null, 2)
+          });
+
+          if (!response.ok) {
+            throw new Error("Save API unavailable");
+          }
+
+          state.loadedConfig = payload;
+          updatePreviewJson();
+          setStatus(`Saved to editor-config.json via ${CONFIG_ENDPOINT}`, "success");
+        } catch (error) {
+          const reason = error instanceof Error ? error.message : String(error);
+          setStatus(`Save failed at ${CONFIG_ENDPOINT}: ${reason}`, "error");
+          console.error(error);
+        }
+      }
+
+      saveButton.addEventListener("click", saveConfig);
+      saveButtonMini.addEventListener("click", saveConfig);
+
+      async function loadConfigFromServer() {
+        try {
+          const response = await fetch(CONFIG_ENDPOINT, { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error("No config endpoint");
+          }
+          const config = await response.json();
+          await applyConfig(config);
+          setStatus(`Loaded config from ${CONFIG_ENDPOINT}`, "success");
+        } catch (error) {
+          await applyConfig({ version: 1, sections: {}, diagrams: {} });
+          const reason = error instanceof Error ? error.message : String(error);
+          setStatus(`Using HTML defaults. Config endpoint unavailable at ${CONFIG_ENDPOINT}: ${reason}`, "info");
+        }
+      }
+
+      reloadButton.addEventListener("click", loadConfigFromServer);
+
+      deck.on("slidechanged", (event) => {
+        refreshActiveSectionUI(event.currentSlide);
+      });
+
+      const savedPanelState = localStorage.getItem(STORAGE_KEY);
+      if (savedPanelState === "open") {
+        editorPanel.classList.remove("editor-panel--collapsed");
+        editorToggle.textContent = "Close";
+        editorToggleMini.textContent = "Close";
+      }
+
+      refreshActiveSectionUI(deck.getCurrentSlide());
+      await loadConfigFromServer();
+      setEditMode(false);
+    </script>
+  </body>
+</html>

@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "ssl-dns-editor": "node slides/ssl-dns-foundations/editor-server.mjs"
+  },
   "private": true,
   "type": "module"
 }
